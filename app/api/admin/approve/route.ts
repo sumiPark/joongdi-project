@@ -13,8 +13,13 @@ export async function POST(request: NextRequest) {
 
     const { userId, status } = await request.json()
 
-    // 관리자 확인 (admin 클라이언트로 RLS 우회)
+    if (!userId || !['approved', 'rejected'].includes(status)) {
+      return NextResponse.json({ error: '올바르지 않은 요청입니다.' }, { status: 400 })
+    }
+
     const adminSupabase = createAdminClient()
+
+    // 관리자 확인 (admin 클라이언트로 RLS 우회)
     const { data: adminProfile } = await adminSupabase
       .from('profiles')
       .select('is_admin')
@@ -25,12 +30,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '관리자 권한이 필요합니다.' }, { status: 403 })
     }
 
-    if (!userId || !['approved', 'rejected'].includes(status)) {
-      return NextResponse.json({ error: '올바르지 않은 요청입니다.' }, { status: 400 })
-    }
-
-    // service role로 업데이트 (RLS 우회)
-    const adminSupabase = createAdminClient()
+    // 상태 업데이트
     const { error } = await adminSupabase
       .from('profiles')
       .update({ status, updated_at: new Date().toISOString() })
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    // 승인 시 이메일 인증도 자동 처리 (이메일 확인 없이 로그인 가능하도록)
+    // 승인 시 이메일 인증도 자동 처리
     if (status === 'approved') {
       await adminSupabase.auth.admin.updateUserById(userId, {
         email_confirm: true,
@@ -66,7 +66,17 @@ export async function PATCH(request: NextRequest) {
 
     const { userId, isAdmin } = await request.json()
 
+    if (!userId || typeof isAdmin !== 'boolean') {
+      return NextResponse.json({ error: '올바르지 않은 요청입니다.' }, { status: 400 })
+    }
+
+    if (userId === user.id && !isAdmin) {
+      return NextResponse.json({ error: '자신의 관리자 권한은 해제할 수 없습니다.' }, { status: 400 })
+    }
+
     const adminSupabase = createAdminClient()
+
+    // 관리자 확인
     const { data: adminProfile } = await adminSupabase
       .from('profiles')
       .select('is_admin')
@@ -77,16 +87,6 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: '관리자 권한이 필요합니다.' }, { status: 403 })
     }
 
-    if (!userId || typeof isAdmin !== 'boolean') {
-      return NextResponse.json({ error: '올바르지 않은 요청입니다.' }, { status: 400 })
-    }
-
-    // 자기 자신의 관리자 권한 해제 방지
-    if (userId === user.id && !isAdmin) {
-      return NextResponse.json({ error: '자신의 관리자 권한은 해제할 수 없습니다.' }, { status: 400 })
-    }
-
-    const adminSupabase = createAdminClient()
     const { error } = await adminSupabase
       .from('profiles')
       .update({ is_admin: isAdmin, updated_at: new Date().toISOString() })
