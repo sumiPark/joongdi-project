@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import Sidebar from '@/components/sidebar'
 
 export default async function AdminLayout({
@@ -12,7 +12,8 @@ export default async function AdminLayout({
 
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase
+  const adminSupabase = createAdminClient()
+  const { data: profile } = await adminSupabase
     .from('profiles')
     .select('status, is_admin, name')
     .eq('id', user.id)
