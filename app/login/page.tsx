@@ -30,30 +30,9 @@ export default function LoginPage() {
       }
 
       if (data.user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('status, is_admin')
-          .eq('id', data.user.id)
-          .single()
-
-        if (!profile || profile.status === 'pending') {
-          router.push('/pending')
-          return
-        }
-
-        if (profile.status === 'rejected') {
-          await supabase.auth.signOut()
-          toast.error('계정이 거절되었습니다. 관리자에게 문의하세요.')
-          return
-        }
-
         toast.success('로그인 성공!')
-        if (profile.is_admin) {
-          router.push('/admin')
-        } else {
-          router.push('/dashboard')
-        }
-        router.refresh()
+        // 전체 페이지 이동으로 서버 세션 동기화 후 리다이렉트
+        window.location.href = '/'
       }
     } finally {
       setLoading(false)
