@@ -11,8 +11,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
 
-    // 관리자 확인
-    const { data: adminProfile } = await supabase
+    const { userId, status } = await request.json()
+
+    // 관리자 확인 (admin 클라이언트로 RLS 우회)
+    const adminSupabase = createAdminClient()
+    const { data: adminProfile } = await adminSupabase
       .from('profiles')
       .select('is_admin')
       .eq('id', user.id)
@@ -21,8 +24,6 @@ export async function POST(request: NextRequest) {
     if (!adminProfile?.is_admin) {
       return NextResponse.json({ error: '관리자 권한이 필요합니다.' }, { status: 403 })
     }
-
-    const { userId, status } = await request.json()
 
     if (!userId || !['approved', 'rejected'].includes(status)) {
       return NextResponse.json({ error: '올바르지 않은 요청입니다.' }, { status: 400 })
@@ -63,7 +64,10 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
 
-    const { data: adminProfile } = await supabase
+    const { userId, isAdmin } = await request.json()
+
+    const adminSupabase = createAdminClient()
+    const { data: adminProfile } = await adminSupabase
       .from('profiles')
       .select('is_admin')
       .eq('id', user.id)
@@ -72,8 +76,6 @@ export async function PATCH(request: NextRequest) {
     if (!adminProfile?.is_admin) {
       return NextResponse.json({ error: '관리자 권한이 필요합니다.' }, { status: 403 })
     }
-
-    const { userId, isAdmin } = await request.json()
 
     if (!userId || typeof isAdmin !== 'boolean') {
       return NextResponse.json({ error: '올바르지 않은 요청입니다.' }, { status: 400 })
