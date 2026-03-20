@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { formatDate, STYLE_LABELS, PURPOSE_LABELS, LENGTH_LABELS } from '@/lib/utils'
+import { formatDate, STYLE_LABELS, PURPOSE_LABELS } from '@/lib/utils'
 import { Copy, Trash2, ChevronDown, ChevronRight, Search } from 'lucide-react'
 import toast from 'react-hot-toast'
 

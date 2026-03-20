@@ -12,7 +12,8 @@ export async function middleware(request: NextRequest) {
         getAll() {
           return request.cookies.getAll()
         },
-        setAll(cookiesToSet) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setAll(cookiesToSet: { name: string; value: string; options: any }[]) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({ request })
           cookiesToSet.forEach(({ name, value, options }) =>
@@ -33,7 +34,6 @@ export async function middleware(request: NextRequest) {
 
   // 로그인 사용자가 인증 페이지 접근 시 처리
   if (user && (pathname === '/login' || pathname === '/register')) {
-    // 프로필 상태 확인
     const { data: profile } = await supabase
       .from('profiles')
       .select('status, is_admin')
