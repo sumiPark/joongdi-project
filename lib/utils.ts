@@ -21,7 +21,7 @@ export const STYLE_LABELS: Record<string, string> = {
   expert: '전문가형',
   influencer: '인플루언서형',
   trustworthy: '신뢰형',
-  storytelling: '썰형',
+  storytelling: '스토리형',
 }
 
 export const PURPOSE_LABELS: Record<string, string> = {
@@ -30,7 +30,7 @@ export const PURPOSE_LABELS: Record<string, string> = {
   comparison: '비교형',
   recommendation: '추천형',
   experience: '체험형',
-  conversion: '승인형',
+  conversion: '전환형',
 }
 
 export const LENGTH_LABELS: Record<string, string> = {

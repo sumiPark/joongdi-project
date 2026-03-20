@@ -19,7 +19,7 @@ const STYLES = [
   { value: 'friendly', label: '친근형', desc: '일상 대화 느낌, 편하게 읽히는 스타일', emoji: '😊' },
   { value: 'expert', label: '전문가형', desc: '신뢰 중심, 정보 전달 강조', emoji: '🎓' },
   { value: 'influencer', label: '인플루언서형', desc: '감성 + 추천 중심, SNS 느낌', emoji: '✨' },
-  { value: 'storytelling', label: '썰형', desc: '스토리텔링, 경험 기반 전개', emoji: '📖' },
+  { value: 'storytelling', label: '스토리형', desc: '스토리텔링, 경험 기반 전개', emoji: '📖' },
 ]
 
 const PURPOSES = [
@@ -28,7 +28,7 @@ const PURPOSES = [
   { value: 'comparison', label: '비교형', desc: '다른 제품과 차이 강조', emoji: '⚖️' },
   { value: 'recommendation', label: '추천형', desc: '구매 유도 중심', emoji: '👍' },
   { value: 'experience', label: '체험형', desc: '과정 중심, 스토리 포함', emoji: '🎯' },
-  { value: 'conversion', label: '승인형', desc: '광고/판매 전환 최적화 구조', emoji: '💰' },
+  { value: 'conversion', label: '전환형', desc: '구매/광고 전환 최적화 구조', emoji: '💰' },
 ]
 
 const LENGTHS = [
@@ -115,7 +115,7 @@ export default function GeneratePage() {
   return (
     <div className="max-w-4xl">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">글 생성</h1>
+        <h1 className="text-2xl font-bold text-gray-900">콘텐츠 생성</h1>
         <p className="text-gray-500 mt-1">키워드를 입력하고 스타일을 선택하면 완성형 블로그 글을 생성합니다</p>
       </div>
 

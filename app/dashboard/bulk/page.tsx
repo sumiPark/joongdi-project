@@ -25,11 +25,11 @@ const STYLES = [
   { value: 'friendly', label: '친근형', emoji: '😊' },
   { value: 'expert', label: '전문가형', emoji: '🎓' },
   { value: 'influencer', label: '인플루언서형', emoji: '✨' },
-  { value: 'storytelling', label: '썰형', emoji: '📖' },
+  { value: 'storytelling', label: '스토리형', emoji: '📖' },
 ]
 
 const PURPOSES = [
-  { value: 'conversion', label: '승인형', emoji: '💰' },
+  { value: 'conversion', label: '전환형', emoji: '💰' },
   { value: 'recommendation', label: '추천형', emoji: '👍' },
   { value: 'review', label: '후기형', emoji: '⭐' },
   { value: 'informative', label: '정보형', emoji: '📋' },

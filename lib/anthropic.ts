@@ -1,7 +1,7 @@
-import Anthropic from '@anthropic-ai/sdk'
+import OpenAI from 'openai'
 
-export const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY!,
+export const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY!,
 })
 
 export interface GenerateOptions {
@@ -30,7 +30,7 @@ const STYLE_PROMPTS: Record<string, string> = {
   expert: '전문가적이고 신뢰감 있는 문체로, 정보를 정확하고 명확하게 전달하는 방식으로 작성해주세요.',
   influencer: '감성적이고 트렌디한 인플루언서 문체로, SNS에서 인기 있을 스타일로 작성해주세요.',
   trustworthy: '과장 없이 솔직하고 설득력 있는 신뢰형 문체로 작성해주세요. (기본 추천)',
-  storytelling: '개인 경험을 기반으로 한 스토리텔링 "썰" 방식으로, 이야기를 풀어가듯 작성해주세요.',
+  storytelling: '개인 경험을 기반으로 한 스토리텔링 방식으로, 이야기를 풀어가듯 작성해주세요.',
 }
 
 const PURPOSE_PROMPTS: Record<string, string> = {
@@ -39,7 +39,7 @@ const PURPOSE_PROMPTS: Record<string, string> = {
   comparison: '다른 유사 제품과의 차이점과 비교 우위를 강조하며 작성합니다.',
   recommendation: '구매를 유도하는 방향으로 작성합니다. 제품의 장점을 부각하고 구매 동기를 강화하세요.',
   experience: '사용 과정과 체험을 중심으로 스토리처럼 작성합니다. 처음부터 끝까지의 경험을 담아주세요.',
-  conversion: '광고/판매 전환 최적화 구조로 작성합니다. CTA를 자연스럽게 녹이고 구매 욕구를 극대화하세요.',
+  conversion: '구매/광고 전환 최적화 구조로 작성합니다. 행동 유도 문구를 자연스럽게 녹이고 구매 욕구를 극대화하세요.',
 }
 
 const LENGTH_TOKENS: Record<string, { min: number; max: number; description: string }> = {
@@ -95,9 +95,10 @@ ${productContext}
 export async function generateContent(options: GenerateOptions, variation: number = 0): Promise<GeneratedContent> {
   const prompt = buildPrompt(options, variation)
 
-  const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-6',
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4o',
     max_tokens: 2000,
+    response_format: { type: 'json_object' },
     messages: [
       {
         role: 'user',
@@ -106,7 +107,7 @@ export async function generateContent(options: GenerateOptions, variation: numbe
     ],
   })
 
-  const text = response.content[0].type === 'text' ? response.content[0].text : ''
+  const text = response.choices[0]?.message?.content || ''
 
   try {
     const jsonMatch = text.match(/\{[\s\S]*\}/)

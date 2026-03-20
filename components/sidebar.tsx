@@ -22,7 +22,7 @@ interface SidebarProps {
 
 const dashboardNavItems = [
   { href: '/dashboard', label: '대시보드', icon: LayoutDashboard, exact: true },
-  { href: '/dashboard/generate', label: '글 생성', icon: PenLine, exact: false },
+  { href: '/dashboard/generate', label: '콘텐츠 생성', icon: PenLine, exact: false },
   { href: '/dashboard/bulk', label: '대량 생성', icon: Layers, exact: false },
   { href: '/dashboard/history', label: '생성 기록', icon: History, exact: false },
 ]
