@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { generateContent, type GenerateOptions } from '@/lib/anthropic'
 
 // 대량 생성은 시간이 오래 걸리므로 최대 타임아웃 설정
@@ -25,7 +25,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
 
-    const { data: profile } = await supabase
+    const adminSupabase = createAdminClient()
+    const { data: profile } = await adminSupabase
       .from('profiles')
       .select('status')
       .eq('id', user.id)

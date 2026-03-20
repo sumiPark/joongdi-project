@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { generateContent, type GenerateOptions } from '@/lib/anthropic'
 
 export async function POST(request: NextRequest) {
@@ -12,8 +12,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     }
 
-    // 승인 여부 확인
-    const { data: profile } = await supabase
+    // 승인 여부 확인 (RLS 우회)
+    const adminSupabase = createAdminClient()
+    const { data: profile } = await adminSupabase
       .from('profiles')
       .select('status')
       .eq('id', user.id)
