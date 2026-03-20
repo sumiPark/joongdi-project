@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
+  // 세션 관리용 일반 클라이언트
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -24,6 +25,19 @@ export async function middleware(request: NextRequest) {
     }
   )
 
+  // RLS 우회용 service role 클라이언트 (프로필 조회용)
+  const adminSupabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      cookies: {
+        getAll() { return [] },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setAll(_cookiesToSet: any[]) {},
+      },
+    }
+  )
+
   const { data: { user } } = await supabase.auth.getUser()
   const pathname = request.nextUrl.pathname
 
@@ -34,7 +48,7 @@ export async function middleware(request: NextRequest) {
 
   // 로그인 사용자가 인증 페이지 접근 시 처리
   if (user && (pathname === '/login' || pathname === '/register')) {
-    const { data: profile } = await supabase
+    const { data: profile } = await adminSupabase
       .from('profiles')
       .select('status, is_admin')
       .eq('id', user.id)
@@ -54,7 +68,7 @@ export async function middleware(request: NextRequest) {
 
   // 로그인 사용자의 대시보드/관리자 접근 제어
   if (user && (pathname.startsWith('/dashboard') || pathname.startsWith('/admin'))) {
-    const { data: profile } = await supabase
+    const { data: profile } = await adminSupabase
       .from('profiles')
       .select('status, is_admin')
       .eq('id', user.id)
