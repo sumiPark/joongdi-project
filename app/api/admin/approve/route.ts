@@ -39,6 +39,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    // 승인 시 이메일 인증도 자동 처리 (이메일 확인 없이 로그인 가능하도록)
+    if (status === 'approved') {
+      await adminSupabase.auth.admin.updateUserById(userId, {
+        email_confirm: true,
+      })
+    }
+
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('[admin/approve] Error:', error)
