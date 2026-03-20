@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { formatDate } from '@/lib/utils'
 import { CheckCircle, XCircle, Clock, Shield, Search } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -30,13 +29,9 @@ export default function AdminUsersPage() {
 
   async function loadProfiles() {
     setLoading(true)
-    const supabase = createClient()
-    const { data } = await supabase
-      .from('profiles')
-      .select('id, email, name, status, is_admin, created_at')
-      .order('created_at', { ascending: false })
-
-    setProfiles((data as Profile[]) || [])
+    const res = await fetch('/api/admin/users')
+    const data = await res.json()
+    setProfiles(data.profiles || [])
     setLoading(false)
   }
 
