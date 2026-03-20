@@ -117,7 +117,7 @@ export default async function DashboardPage() {
               <div key={item.id} className="p-4 flex items-center gap-4">
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-gray-900 truncate">
-                    {(item.content as any)?.title || item.keyword}
+                    {item.title || item.keyword}
                   </p>
                   <p className="text-sm text-gray-500 mt-0.5">
                     키워드: {item.keyword} &middot; {STYLE_LABELS[item.style]} &middot; {PURPOSE_LABELS[item.purpose]}
