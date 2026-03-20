@@ -38,17 +38,17 @@ const PURPOSES = [
 ]
 
 const BULK_COUNTS = [
-  { value: 10, label: '10개', desc: '빠른 테스트' },
-  { value: 30, label: '30개', desc: '광고 테스트용', recommended: true },
-  { value: 50, label: '50개', desc: '콘텐츠 대량 제작' },
-  { value: 100, label: '100개', desc: '프리미엄 패키지' },
+  { value: 3, label: '3개', desc: '빠른 테스트' },
+  { value: 5, label: '5개', desc: '기본 생성', recommended: true },
+  { value: 10, label: '10개', desc: '콘텐츠 묶음 제작' },
+  { value: 20, label: '20개', desc: '대량 제작' },
 ]
 
 export default function BulkGeneratePage() {
   const [keyword, setKeyword] = useState('')
   const [style, setStyle] = useState('trustworthy')
   const [purpose, setPurpose] = useState('conversion')
-  const [count, setCount] = useState(30)
+  const [count, setCount] = useState(5)
   const [productName, setProductName] = useState('')
   const [productFeatures, setProductFeatures] = useState('')
   const [loading, setLoading] = useState(false)

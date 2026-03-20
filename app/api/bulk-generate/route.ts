@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '필수 입력값이 누락되었습니다.' }, { status: 400 })
     }
 
-    const maxCount = Math.min(count, 100)
+    const maxCount = Math.min(count, 20)
     const sessionId = crypto.randomUUID()
 
     const options: GenerateOptions = {
