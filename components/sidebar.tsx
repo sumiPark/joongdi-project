@@ -121,8 +121,34 @@ export default function Sidebar({ isAdmin = false, userName, featureSettings }: 
           </Link>
         )}
 
-        {/* 콘텐츠 생성 메뉴 */}
+        {/* 게시판 */}
         <div className="text-xs font-semibold text-brand-400 uppercase tracking-wider px-3 pt-2 pb-1">
+          게시판
+        </div>
+        {boardNavItems.map((item) => {
+          const isActive = pathname.startsWith(item.href)
+          const Icon = item.icon
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150',
+                isActive
+                  ? 'bg-brand-600 text-white'
+                  : 'text-brand-300 hover:bg-white/10 hover:text-white'
+              )}
+            >
+              <Icon size={18} className="flex-shrink-0" />
+              <span className="flex-1">{item.label}</span>
+              {isActive && <ChevronRight size={14} className="opacity-60" />}
+            </Link>
+          )
+        })}
+
+        {/* 콘텐츠 생성 메뉴 */}
+        <div className="border-t border-white/10 my-3" />
+        <div className="text-xs font-semibold text-brand-400 uppercase tracking-wider px-3 pb-1">
           콘텐츠 생성
         </div>
         {generateNavItems.map((item) => {
@@ -161,32 +187,6 @@ export default function Sidebar({ isAdmin = false, userName, featureSettings }: 
           <span className="flex-1">생성 기록</span>
           {pathname.startsWith('/dashboard/history') && <ChevronRight size={14} className="opacity-60" />}
         </Link>
-
-        {/* 게시판 */}
-        <div className="border-t border-white/10 my-3" />
-        <div className="text-xs font-semibold text-brand-400 uppercase tracking-wider px-3 pb-1">
-          게시판
-        </div>
-        {boardNavItems.map((item) => {
-          const isActive = pathname.startsWith(item.href)
-          const Icon = item.icon
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150',
-                isActive
-                  ? 'bg-brand-600 text-white'
-                  : 'text-brand-300 hover:bg-white/10 hover:text-white'
-              )}
-            >
-              <Icon size={18} className="flex-shrink-0" />
-              <span className="flex-1">{item.label}</span>
-              {isActive && <ChevronRight size={14} className="opacity-60" />}
-            </Link>
-          )
-        })}
       </nav>
 
       {/* 하단 유저 정보 */}

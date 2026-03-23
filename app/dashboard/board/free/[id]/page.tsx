@@ -1,7 +1,8 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import Link from 'next/link'
 import CommentSection from './CommentSection'
+import PostActions from './PostActions'
 
 export default async function FreePostDetailPage({ params }: { params: { id: string } }) {
   const supabase = createClient()
@@ -53,14 +54,7 @@ export default async function FreePostDetailPage({ params }: { params: { id: str
               <span>조회 {post.view_count + 1}</span>
             </div>
             {(isAuthor || isAdmin) && (
-              <div className="flex gap-2">
-                <Link
-                  href={`/dashboard/board/free/write?id=${post.id}`}
-                  className="text-xs text-gray-400 hover:text-gray-600"
-                >
-                  수정
-                </Link>
-              </div>
+              <PostActions postId={post.id} />
             )}
           </div>
         </div>

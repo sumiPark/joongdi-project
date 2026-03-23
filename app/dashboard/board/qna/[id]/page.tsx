@@ -2,6 +2,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import QnaReplySection from './QnaReplySection'
+import QnaPostActions from './QnaPostActions'
 
 export default async function QnaDetailPage({ params }: { params: { id: string } }) {
   const supabase = createClient()
@@ -55,13 +56,8 @@ export default async function QnaDetailPage({ params }: { params: { id: string }
               <span>·</span>
               <span>{new Date(post.created_at).toLocaleDateString('ko-KR')}</span>
             </div>
-            {(isAuthor || isAdmin) && !reply && (
-              <Link
-                href={`/dashboard/board/qna/write?id=${post.id}`}
-                className="text-xs text-gray-400 hover:text-gray-600"
-              >
-                수정
-              </Link>
+            {(isAuthor || isAdmin) && (
+              <QnaPostActions postId={post.id} hasReply={!!reply} />
             )}
           </div>
         </div>
