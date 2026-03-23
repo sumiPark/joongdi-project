@@ -121,7 +121,18 @@ create trigger profiles_updated_at
   before update on public.profiles
   for each row execute procedure public.update_updated_at();
 
--- 8. feature_settings 테이블 (기능 on/off)
+-- 8. RLS 헬퍼 함수 (security definer로 profiles 재귀 방지)
+create or replace function public.is_approved()
+returns boolean as $$
+  select exists (select 1 from public.profiles where id = auth.uid() and status = 'approved')
+$$ language sql security definer stable;
+
+create or replace function public.is_admin_user()
+returns boolean as $$
+  select exists (select 1 from public.profiles where id = auth.uid() and is_admin = true)
+$$ language sql security definer stable;
+
+-- 9. feature_settings 테이블 (기능 on/off)
 create table if not exists public.feature_settings (
   key text primary key,
   label text not null,
@@ -147,11 +158,9 @@ create policy "anyone_read_feature_settings"
 -- 관리자만 수정 가능
 create policy "admins_update_feature_settings"
   on public.feature_settings for update
-  using (
-    exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin = true)
-  );
+  using (public.is_admin_user());
 
--- 9. board_posts 테이블 (게시판 글)
+-- 10. board_posts 테이블 (게시판 글)
 create table if not exists public.board_posts (
   id uuid default gen_random_uuid() primary key,
   board_type text not null check (board_type in ('notice', 'free', 'qna')),
@@ -174,36 +183,25 @@ create trigger board_posts_updated_at
 -- 승인된 유저는 모두 읽기 가능
 create policy "approved_users_read_posts"
   on public.board_posts for select
-  using (
-    exists (select 1 from public.profiles p where p.id = auth.uid() and p.status = 'approved')
-  );
+  using (public.is_approved());
 
 -- 승인된 유저는 free/qna 글 작성 가능 (notice는 관리자만)
 create policy "users_insert_posts"
   on public.board_posts for insert
   with check (
     auth.uid() = author_id
-    and exists (select 1 from public.profiles p where p.id = auth.uid() and p.status = 'approved')
-    and (
-      board_type in ('free', 'qna')
-      or exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin = true)
-    )
+    and public.is_approved()
+    and (board_type in ('free', 'qna') or public.is_admin_user())
   );
 
 -- 작성자 또는 관리자만 수정/삭제
 create policy "author_or_admin_update_posts"
   on public.board_posts for update
-  using (
-    author_id = auth.uid()
-    or exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin = true)
-  );
+  using (author_id = auth.uid() or public.is_admin_user());
 
 create policy "author_or_admin_delete_posts"
   on public.board_posts for delete
-  using (
-    author_id = auth.uid()
-    or exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin = true)
-  );
+  using (author_id = auth.uid() or public.is_admin_user());
 
 -- 10. board_comments 테이블 (자유 게시판 댓글)
 create table if not exists public.board_comments (
@@ -219,23 +217,15 @@ alter table public.board_comments enable row level security;
 
 create policy "approved_users_read_comments"
   on public.board_comments for select
-  using (
-    exists (select 1 from public.profiles p where p.id = auth.uid() and p.status = 'approved')
-  );
+  using (public.is_approved());
 
 create policy "users_insert_comments"
   on public.board_comments for insert
-  with check (
-    auth.uid() = author_id
-    and exists (select 1 from public.profiles p where p.id = auth.uid() and p.status = 'approved')
-  );
+  with check (auth.uid() = author_id and public.is_approved());
 
 create policy "author_or_admin_delete_comments"
   on public.board_comments for delete
-  using (
-    author_id = auth.uid()
-    or exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin = true)
-  );
+  using (author_id = auth.uid() or public.is_admin_user());
 
 -- 11. qna_replies 테이블 (QnA 관리자 답변)
 create table if not exists public.qna_replies (
@@ -256,21 +246,15 @@ create trigger qna_replies_updated_at
 
 create policy "approved_users_read_replies"
   on public.qna_replies for select
-  using (
-    exists (select 1 from public.profiles p where p.id = auth.uid() and p.status = 'approved')
-  );
+  using (public.is_approved());
 
 create policy "admins_insert_replies"
   on public.qna_replies for insert
-  with check (
-    exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin = true)
-  );
+  with check (public.is_admin_user());
 
 create policy "admins_update_replies"
   on public.qna_replies for update
-  using (
-    exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin = true)
-  );
+  using (public.is_admin_user());
 
 -- ============================================================
 -- 관리자 수동 설정 (필요시)
