@@ -157,7 +157,7 @@ export default function SeriesPage() {
               onChange={(e) => setKeyword(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
               className="input-field"
-              placeholder="예: 다이슨 에어랩, 나이키 페가수스, 제주도 여행"
+              placeholder="예: 쿠마랑 흑하랑, 착즙 레몬스틱, 리유 솔루션"
             />
           </div>
 
@@ -171,7 +171,7 @@ export default function SeriesPage() {
               value={productName}
               onChange={(e) => setProductName(e.target.value)}
               className="input-field"
-              placeholder="예: 다이슨 에어랩 멀티 스타일러"
+              placeholder="예: 쿠마 진저레몬샷"
             />
           </div>
 

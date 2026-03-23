@@ -131,7 +131,7 @@ export default function TitleTestPage() {
               onChange={(e) => setKeyword(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
               className="input-field"
-              placeholder="예: 다이슨 에어랩, 나이키 운동화, 강남 맛집"
+              placeholder="예: 쿠마랑 흑하랑, 리유 래쉬업 손눈썹 고데기, 착즙 레몬스틱"
             />
           </div>
 
@@ -145,7 +145,7 @@ export default function TitleTestPage() {
               value={productName}
               onChange={(e) => setProductName(e.target.value)}
               className="input-field"
-              placeholder="예: 다이슨 에어랩 멀티 스타일러 컴플리트"
+              placeholder="예: 리유 브로멜라인 효소"
             />
           </div>
 

@@ -100,7 +100,7 @@ ${productFeatures ? `**주요 특징:** ${productFeatures}` : ''}
 
 다음 JSON 형식으로만 반환:
 {
-  "seriesTitle": "시리즈 전체 제목 (예: 다이슨 에어랩 완전정복 시리즈)",
+  "seriesTitle": "시리즈 전체 제목 (예: 쿠마랑 흑하랑 완전정복 시리즈)",
   "seriesDescription": "시리즈 한 줄 소개",
   "episodes": [
     {

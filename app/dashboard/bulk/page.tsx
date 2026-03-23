@@ -134,14 +134,14 @@ export default function BulkGeneratePage() {
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               className="input-field"
-              placeholder="예: 다이슨 에어랩, 삼성 갤럭시, 강남 맛집 추천"
+              placeholder="예: 쿠마랑 흑하랑, 리유 브로멜라인 효소, 쿠마 진저레몬샷"
             />
           </div>
 
           {/* 상품명 */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">상품명 <span className="text-gray-400 font-normal">(선택)</span></label>
-            <input type="text" value={productName} onChange={(e) => setProductName(e.target.value)} className="input-field" placeholder="예: 다이슨 에어랩 멀티 스타일러" />
+            <input type="text" value={productName} onChange={(e) => setProductName(e.target.value)} className="input-field" placeholder="예: 리유 래쉬업 손눈썹 고데기" />
           </div>
 
           {/* 상품 특징 */}

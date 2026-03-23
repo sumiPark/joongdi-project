@@ -130,7 +130,7 @@ export default function GeneratePage() {
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               className="input-field"
-              placeholder="예: 다이슨 에어랩, 나이키 운동화, 강남 맛집"
+              placeholder="예: 쿠마랑 흑하랑, 리유 래쉬업 손눈썹 고데기, 착즙 레몬스틱"
               onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
             />
           </div>
@@ -208,7 +208,7 @@ export default function GeneratePage() {
               <div className="px-5 pb-5 space-y-3 border-t border-gray-100">
                 <div className="mt-3">
                   <label className="block text-xs font-medium text-gray-600 mb-1">상품명</label>
-                  <input type="text" value={productName} onChange={(e) => setProductName(e.target.value)} className="input-field text-sm" placeholder="예: 다이슨 에어랩 멀티 스타일러" />
+                  <input type="text" value={productName} onChange={(e) => setProductName(e.target.value)} className="input-field text-sm" placeholder="예: 쿠마랑 흑하랑" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">주요 특징 / 핵심 포인트</label>
