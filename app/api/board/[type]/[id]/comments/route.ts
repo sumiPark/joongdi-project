@@ -39,13 +39,29 @@ export async function POST(
     return NextResponse.json({ error: '내용을 입력해주세요.' }, { status: 400 })
   }
 
+  const authorName = profile.name || user.email?.split('@')[0] || '익명'
+
   const { data, error } = await supabase.from('board_comments').insert({
     post_id: params.id,
     author_id: user.id,
-    author_name: profile.name || user.email?.split('@')[0] || '익명',
+    author_name: authorName,
     content: content.trim(),
   }).select('*').single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  // 게시글 작성자에게 알림 (본인 댓글 제외)
+  const { data: post } = await adminSupabase
+    .from('board_posts').select('author_id, title').eq('id', params.id).single()
+  if (post && post.author_id !== user.id) {
+    await adminSupabase.from('notifications').insert({
+      user_id: post.author_id,
+      type: 'comment',
+      post_id: params.id,
+      post_title: post.title,
+      actor_name: authorName,
+    })
+  }
+
   return NextResponse.json({ comment: data })
 }

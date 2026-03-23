@@ -37,6 +37,10 @@ export async function POST(
   const { data: existing } = await adminSupabase
     .from('qna_replies').select('id').eq('post_id', params.id).single()
 
+  const adminName = profile.name || '관리자'
+  const { data: post } = await adminSupabase
+    .from('board_posts').select('author_id, title').eq('id', params.id).single()
+
   let reply
   if (existing) {
     const { data, error } = await adminSupabase.from('qna_replies')
@@ -50,11 +54,22 @@ export async function POST(
     const { data, error } = await adminSupabase.from('qna_replies').insert({
       post_id: params.id,
       admin_id: user.id,
-      admin_name: profile.name || '관리자',
+      admin_name: adminName,
       content: content.trim(),
     }).select().single()
     if (error) return NextResponse.json({ error: '답변 등록 중 오류가 발생했습니다.' }, { status: 500 })
     reply = data
+
+    // 신규 답변일 때만 알림 발송
+    if (post && post.author_id !== user.id) {
+      await adminSupabase.from('notifications').insert({
+        user_id: post.author_id,
+        type: 'reply',
+        post_id: params.id,
+        post_title: post.title,
+        actor_name: adminName,
+      })
+    }
   }
 
   return NextResponse.json({ reply })

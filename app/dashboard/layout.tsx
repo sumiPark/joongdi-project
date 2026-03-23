@@ -27,7 +27,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar isAdmin={profile.is_admin} userName={profile.name || user.email} featureSettings={featureSettings} />
+      <Sidebar isAdmin={profile.is_admin} userName={profile.name || user.email} userId={user.id} featureSettings={featureSettings} />
       <main className="flex-1 ml-64">
         <div className="p-8">
           {children}

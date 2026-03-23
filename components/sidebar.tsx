@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import toast from 'react-hot-toast'
+import NotificationBell from './NotificationBell'
 import {
   PenLine,
   Layers,
@@ -24,6 +25,7 @@ import {
 interface SidebarProps {
   isAdmin?: boolean
   userName?: string
+  userId?: string
   featureSettings?: Record<string, boolean>
 }
 
@@ -46,7 +48,7 @@ const adminNavItems = [
   { href: '/admin/features', label: '기능 관리', icon: Settings2, exact: false },
 ]
 
-export default function Sidebar({ isAdmin = false, userName, featureSettings }: SidebarProps) {
+export default function Sidebar({ isAdmin = false, userName, userId, featureSettings }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const navItems = isAdmin ? adminNavItems : []
@@ -199,6 +201,7 @@ export default function Sidebar({ isAdmin = false, userName, featureSettings }: 
             <p className="text-sm font-medium truncate">{userName || '사용자'}</p>
             {isAdmin && <p className="text-xs text-brand-400">관리자</p>}
           </div>
+          {userId && <NotificationBell userId={userId} />}
         </div>
         <button
           onClick={handleLogout}
