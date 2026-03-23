@@ -157,7 +157,7 @@ export default function Sidebar({ isAdmin = false, userName, userId, featureSett
         </div>
         {generateNavItems.map((item) => {
           const enabled = featureSettings ? (featureSettings[item.featureKey] !== false) : true
-          if (!enabled) return null
+          if (!enabled && !isAdmin) return null
           const isActive = pathname.startsWith(item.href)
           const Icon = item.icon
           return (
@@ -166,14 +166,19 @@ export default function Sidebar({ isAdmin = false, userName, userId, featureSett
               href={item.href}
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150',
-                isActive
-                  ? 'bg-brand-600 text-white'
-                  : 'text-brand-300 hover:bg-white/10 hover:text-white'
+                !enabled && isAdmin
+                  ? 'opacity-40 text-brand-300 hover:bg-white/10 hover:text-white hover:opacity-70'
+                  : isActive
+                    ? 'bg-brand-600 text-white'
+                    : 'text-brand-300 hover:bg-white/10 hover:text-white'
               )}
             >
               <Icon size={18} className="flex-shrink-0" />
               <span className="flex-1">{item.label}</span>
-              {isActive && <ChevronRight size={14} className="opacity-60" />}
+              {!enabled && isAdmin
+                ? <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded text-brand-400">OFF</span>
+                : isActive && <ChevronRight size={14} className="opacity-60" />
+              }
             </Link>
           )
         })}

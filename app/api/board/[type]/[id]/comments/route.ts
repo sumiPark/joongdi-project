@@ -54,13 +54,14 @@ export async function POST(
   const { data: post } = await adminSupabase
     .from('board_posts').select('author_id, title').eq('id', params.id).single()
   if (post && post.author_id !== user.id) {
-    await adminSupabase.from('notifications').insert({
+    const { error: notifError } = await adminSupabase.from('notifications').insert({
       user_id: post.author_id,
       type: 'comment',
       post_id: params.id,
       post_title: post.title,
       actor_name: authorName,
     })
+    if (notifError) console.error('[알림 오류]', notifError.message)
   }
 
   return NextResponse.json({ comment: data })

@@ -62,13 +62,14 @@ export async function POST(
 
     // 신규 답변일 때만 알림 발송
     if (post && post.author_id !== user.id) {
-      await adminSupabase.from('notifications').insert({
+      const { error: notifError } = await adminSupabase.from('notifications').insert({
         user_id: post.author_id,
         type: 'reply',
         post_id: params.id,
         post_title: post.title,
         actor_name: adminName,
       })
+      if (notifError) console.error('[알림 오류]', notifError.message)
     }
   }
 
