@@ -53,9 +53,9 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { keyword, style, purpose, count, productName, productFeatures } = body
+    const { keyword, style, seriesType, count, productName, productFeatures } = body
 
-    if (!keyword || !style || !purpose || !count) {
+    if (!keyword || !style || !count) {
       return NextResponse.json({ error: '필수 입력값이 누락되었습니다.' }, { status: 400 })
     }
 
@@ -69,14 +69,57 @@ export async function POST(request: NextRequest) {
       storytelling: '스토리형',
     }
 
-    const PURPOSE_LABELS: Record<string, string> = {
-      informative: '정보형',
-      review: '후기형',
-      comparison: '비교형',
-      recommendation: '추천형',
-      experience: '체험형',
-      conversion: '전환형',
+    // seriesType별 기획 가이드 및 편당 목적 매핑
+    const SERIES_TYPE_CONFIG: Record<string, {
+      label: string
+      planGuide: string
+      structures: Record<number, string>
+      episodePurposes: string[]
+    }> = {
+      purchase_journey: {
+        label: '구매 여정형',
+        planGuide: '독자가 제품에 처음 관심 갖고 → 비교/고민 → 최종 구매 결정까지의 흐름으로 구성. 각 편이 구매 깔때기의 다른 단계를 커버하며 자연스럽게 구매 의사결정을 유도.',
+        structures: {
+          3: '1편: 제품 소개/관심 유발 → 2편: 비교/대안 탐색 → 3편: 구매 가이드/최종 추천',
+          4: '1편: 제품 소개 → 2편: 실사용 후기/검증 → 3편: 비교/대안 → 4편: 구매 결정 가이드',
+          5: '1편: 관심 계기/소개 → 2편: 제품 심층 분석 → 3편: 실사용 후기 → 4편: 비교/대안 → 5편: 최종 구매 추천',
+        },
+        episodePurposes: ['informative', 'review', 'comparison', 'recommendation', 'conversion'],
+      },
+      usage_diary: {
+        label: '사용기 연재형',
+        planGuide: '제품 개봉부터 장기 사용까지 시간 순서로 연재. 독자가 함께 써보는 것 같은 간접 체험 구성. 각 편은 다른 시점(개봉→초기→장기)의 솔직한 기록.',
+        structures: {
+          3: '1편: 개봉기/첫인상 → 2편: 1-2주 사용기 → 3편: 장기 사용 최종 후기',
+          4: '1편: 개봉기 → 2편: 초기 사용 (1주) → 3편: 중간 점검 (1개월) → 4편: 장기 사용 최종',
+          5: '1편: 개봉/첫인상 → 2편: 초기 사용기 → 3편: 중간 점검 → 4편: 비교 분석 → 5편: 장기 사용 최종 후기',
+        },
+        episodePurposes: ['experience', 'review', 'review', 'comparison', 'review'],
+      },
+      info_deep: {
+        label: '성분/정보 심화형',
+        planGuide: '제품의 성분·원리·효과를 단계별로 심화 분석. 각 편이 다른 전문적 측면을 깊이 있게 다루는 정보 시리즈. 전문성과 신뢰감이 핵심.',
+        structures: {
+          3: '1편: 제품 개요/소개 → 2편: 핵심 성분/원리 분석 → 3편: 효과 검증/총정리',
+          4: '1편: 제품 소개 → 2편: 성분/스펙 분석 → 3편: 효과/연구 검증 → 4편: 비교 분석',
+          5: '1편: 제품 개요 → 2편: 핵심 성분 분석 → 3편: 효과/연구 → 4편: 타 제품 비교 → 5편: 활용 가이드 총정리',
+        },
+        episodePurposes: ['informative', 'informative', 'comparison', 'informative', 'recommendation'],
+      },
+      free: {
+        label: '자유 구성',
+        planGuide: 'AI가 키워드에 가장 적합한 시리즈 구조를 자유롭게 기획. 각 편이 독립적으로도 가치 있고 전체 흐름도 자연스럽게 연결되도록 구성.',
+        structures: {
+          3: '3편: 도입/분석 → 상세 후기 → 총정리',
+          4: '4편: 도입 → 상세 후기 → 비교/대안 → 총정리',
+          5: '5편: 도입/개봉기 → 사용 후기 → 장단점 → 비교/대안 → 구매 가이드',
+        },
+        episodePurposes: ['informative', 'review', 'comparison', 'recommendation', 'conversion'],
+      },
     }
+
+    const typeKey = seriesType && SERIES_TYPE_CONFIG[seriesType] ? seriesType : 'free'
+    const typeConfig = SERIES_TYPE_CONFIG[typeKey]
 
     // Step 1: 시리즈 기획안 생성
     const planPrompt = `당신은 한국 블로그 콘텐츠 전략가입니다.
@@ -86,17 +129,14 @@ export async function POST(request: NextRequest) {
 ${productName ? `**상품명:** ${productName}` : ''}
 ${productFeatures ? `**주요 특징:** ${productFeatures}` : ''}
 **문체:** ${STYLE_LABELS[style] || style}
-**목적:** ${PURPOSE_LABELS[purpose] || purpose}
+**시리즈 유형:** ${typeConfig.label}
 **편수:** ${episodeCount}편
 
-**기획 원칙:**
-- 각 편이 독립적으로도 읽힐 수 있지만, 전체 흐름이 자연스럽게 연결
-- 편마다 완전히 다른 각도와 주제로 접근
-- 독자가 1편부터 읽고 싶어지는 흐름 구성
-- 전형적인 시리즈 구성 예시 (키워드에 맞게 변형):
-  - 3편: 도입/분석 → 상세후기 → 총정리
-  - 4편: 도입 → 상세후기 → 비교/대안 → 총정리
-  - 5편: 도입/개봉기 → 사용후기 → 장단점 → 비교/대안 → 구매가이드
+**시리즈 유형 기획 원칙:**
+${typeConfig.planGuide}
+
+**${episodeCount}편 구성 가이드:**
+${typeConfig.structures[episodeCount as 3 | 4 | 5] || typeConfig.structures[5]}
 
 다음 JSON 형식으로만 반환:
 {
@@ -140,10 +180,11 @@ ${productFeatures ? `**주요 특징:** ${productFeatures}` : ''}
 
       const batchResults = await Promise.allSettled(
         batch.map(async (ep) => {
+          const episodePurpose = typeConfig.episodePurposes[ep.episode - 1] || typeConfig.episodePurposes[0]
           const options: GenerateOptions = {
             keyword,
             style,
-            purpose,
+            purpose: episodePurpose,
             lengthOption: 'medium',
             productName,
             productFeatures,

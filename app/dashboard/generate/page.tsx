@@ -37,6 +37,13 @@ const LENGTHS = [
   { value: 'long', label: '길게', desc: '상세페이지 / SEO용 글', emoji: '📚' },
 ]
 
+const TARGET_AUDIENCES = [
+  { value: 'all', label: '전체', desc: '기본 설정', emoji: '👥', recommended: true },
+  { value: 'young_women', label: '2030 여성', desc: '감성·트렌드·실용성 중시', emoji: '👩' },
+  { value: 'health_middle', label: '건강 중장년', desc: '성분·효능·신뢰 중시', emoji: '🌿' },
+  { value: 'mz_beauty', label: 'MZ 뷰티', desc: '솔직 후기·가성비·SNS 공유', emoji: '✨' },
+]
+
 const SECTIONS = [
   { key: 'hook', label: '후킹', color: 'border-l-orange-400' },
   { key: 'analysis', label: '제품 분석', color: 'border-l-blue-400' },
@@ -51,6 +58,7 @@ export default function GeneratePage() {
   const [style, setStyle] = useState('trustworthy')
   const [purpose, setPurpose] = useState('informative')
   const [lengthOption, setLengthOption] = useState('medium')
+  const [targetAudience, setTargetAudience] = useState('all')
   const [showProductData, setShowProductData] = useState(false)
   const [productName, setProductName] = useState('')
   const [productFeatures, setProductFeatures] = useState('')
@@ -77,6 +85,7 @@ export default function GeneratePage() {
           style,
           purpose,
           lengthOption,
+          targetAudience: targetAudience !== 'all' ? targetAudience : undefined,
           productName: productName.trim() || undefined,
           productFeatures: productFeatures.trim() || undefined,
           productReviewPoints: productReviewPoints.trim() || undefined,
@@ -185,6 +194,26 @@ export default function GeneratePage() {
                     {l.recommended && <span className="text-xs bg-brand-100 text-brand-700 px-1.5 py-0.5 rounded-full">추천</span>}
                   </div>
                   <p className="text-xs text-gray-500 leading-tight">{l.desc}</p>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* 타겟 독자 */}
+          <div className="card p-5">
+            <label className="block text-sm font-semibold text-gray-700 mb-3">타겟 독자</label>
+            <div className="grid grid-cols-2 gap-2">
+              {TARGET_AUDIENCES.map((a) => (
+                <label key={a.value} className={`flex items-center gap-2 p-3 rounded-lg border-2 cursor-pointer transition-all ${targetAudience === a.value ? 'border-brand-500 bg-brand-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                  <input type="radio" value={a.value} checked={targetAudience === a.value} onChange={() => setTargetAudience(a.value)} className="sr-only" />
+                  <span className="text-lg">{a.emoji}</span>
+                  <div>
+                    <div className="flex items-center gap-1">
+                      <span className="font-semibold text-sm text-gray-900">{a.label}</span>
+                      {a.recommended && <span className="text-xs bg-brand-100 text-brand-700 px-1.5 py-0.5 rounded-full">기본</span>}
+                    </div>
+                    <p className="text-xs text-gray-500 leading-tight">{a.desc}</p>
+                  </div>
                 </label>
               ))}
             </div>

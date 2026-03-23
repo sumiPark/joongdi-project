@@ -13,6 +13,13 @@ export interface GenerateOptions {
   productFeatures?: string
   productReviewPoints?: string
   targetCustomers?: string
+  targetAudience?: string
+}
+
+const TARGET_AUDIENCE_GUIDE: Record<string, string> = {
+  young_women: '20-30대 여성. 감성적 공감과 트렌드에 민감하며 실용성 중시. 블로그·인스타로 정보 수집. 친근하고 공감 가는 톤이 효과적.',
+  health_middle: '건강에 관심 많은 40-60대. 성분·효능 중심 정보를 선호하며 신뢰와 전문성 중시. 과장 없는 담백한 설명이 효과적.',
+  mz_beauty: 'MZ세대 뷰티 관심층. 솔직한 리얼 후기와 가성비를 중시. SNS 공유 가능한 비주얼·감성 콘텐츠 선호.',
 }
 
 export interface GeneratedContent {
@@ -201,6 +208,10 @@ ${options.productReviewPoints ? `- 실제 후기 포인트: ${options.productRev
 ${options.targetCustomers ? `- 주요 타겟: ${options.targetCustomers}` : ''}
 ` : ''
 
+  const audienceContext = options.targetAudience && TARGET_AUDIENCE_GUIDE[options.targetAudience]
+    ? `\n**타겟 독자:** ${TARGET_AUDIENCE_GUIDE[options.targetAudience]}\n`
+    : ''
+
   const variationGuide = variation > 0 ? `
 **[변형 지시 - 반드시 준수]**
 - 후킹 패턴: ${VARIATION_HOOKS[variation % VARIATION_HOOKS.length]}
@@ -215,7 +226,7 @@ ${options.targetCustomers ? `- 주요 타겟: ${options.targetCustomers}` : ''}
 당신은 지금 애드센스/애드포스트 수익화에 최적화된 한국 블로그 글을 작성합니다.
 
 **키워드:** ${options.keyword}
-${productContext}
+${productContext}${audienceContext}
 
 **[섹션별 작성 가이드]**
 

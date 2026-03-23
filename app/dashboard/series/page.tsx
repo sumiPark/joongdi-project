@@ -38,13 +38,32 @@ const STYLES = [
   { value: 'storytelling', label: '스토리형', emoji: '📖' },
 ]
 
-const PURPOSES = [
-  { value: 'review', label: '후기형', emoji: '⭐', recommended: true },
-  { value: 'informative', label: '정보형', emoji: '📋' },
-  { value: 'comparison', label: '비교형', emoji: '⚖️' },
-  { value: 'recommendation', label: '추천형', emoji: '👍' },
-  { value: 'experience', label: '체험형', emoji: '🎯' },
-  { value: 'conversion', label: '전환형', emoji: '💰' },
+const SERIES_TYPES = [
+  {
+    value: 'purchase_journey',
+    label: '구매 여정형',
+    desc: '관심→비교→구매 결정 흐름',
+    emoji: '🛒',
+  },
+  {
+    value: 'usage_diary',
+    label: '사용기 연재형',
+    desc: '개봉→초기→장기사용 기록',
+    emoji: '📅',
+    recommended: true,
+  },
+  {
+    value: 'info_deep',
+    label: '성분/정보 심화형',
+    desc: '성분·원리·효과 단계별 분석',
+    emoji: '🔬',
+  },
+  {
+    value: 'free',
+    label: '자유 구성',
+    desc: 'AI가 최적 구조 자유 기획',
+    emoji: '🎨',
+  },
 ]
 
 const COUNT_OPTIONS = [
@@ -65,7 +84,7 @@ const SECTIONS = [
 export default function SeriesPage() {
   const [keyword, setKeyword] = useState('')
   const [style, setStyle] = useState('trustworthy')
-  const [purpose, setPurpose] = useState('review')
+  const [seriesType, setSeriesType] = useState('usage_diary')
   const [count, setCount] = useState(5)
   const [productName, setProductName] = useState('')
   const [productFeatures, setProductFeatures] = useState('')
@@ -90,7 +109,7 @@ export default function SeriesPage() {
         body: JSON.stringify({
           keyword: keyword.trim(),
           style,
-          purpose,
+          seriesType,
           count,
           productName: productName.trim() || undefined,
           productFeatures: productFeatures.trim() || undefined,
@@ -209,22 +228,25 @@ export default function SeriesPage() {
             </div>
           </div>
 
-          {/* 목적 */}
+          {/* 시리즈 유형 */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">글 목적</label>
-            <div className="grid grid-cols-3 gap-1.5">
-              {PURPOSES.map((p) => (
+            <label className="block text-sm font-semibold text-gray-700 mb-2">시리즈 유형</label>
+            <div className="grid grid-cols-2 gap-1.5">
+              {SERIES_TYPES.map((t) => (
                 <label
-                  key={p.value}
-                  className={`flex items-center gap-1.5 p-2 rounded-lg border-2 cursor-pointer transition-all ${
-                    purpose === p.value ? 'border-brand-500 bg-brand-50' : 'border-gray-200 hover:border-gray-300'
+                  key={t.value}
+                  className={`flex items-center gap-2 p-2.5 rounded-lg border-2 cursor-pointer transition-all ${
+                    seriesType === t.value ? 'border-brand-500 bg-brand-50' : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
-                  <input type="radio" value={p.value} checked={purpose === p.value} onChange={() => setPurpose(p.value)} className="sr-only" />
-                  <span className="text-sm">{p.emoji}</span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs font-medium text-gray-700">{p.label}</span>
-                    {p.recommended && <span className="text-xs bg-brand-100 text-brand-700 px-1 rounded-full">추천</span>}
+                  <input type="radio" value={t.value} checked={seriesType === t.value} onChange={() => setSeriesType(t.value)} className="sr-only" />
+                  <span className="text-lg flex-shrink-0">{t.emoji}</span>
+                  <div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs font-semibold text-gray-900">{t.label}</span>
+                      {t.recommended && <span className="text-xs bg-brand-100 text-brand-700 px-1 rounded-full">추천</span>}
+                    </div>
+                    <p className="text-xs text-gray-500 leading-tight">{t.desc}</p>
                   </div>
                 </label>
               ))}

@@ -10,9 +10,43 @@ function sleep(ms: number) {
 }
 
 function isTopPick(index: number, total: number): boolean {
-  // 상위 10% 또는 최소 3개를 TOP 픽으로
   const topCount = Math.max(3, Math.floor(total * 0.1))
   return index < topCount
+}
+
+// direction별 style/purpose 자동 조합 테이블
+const DIRECTION_COMBOS: Record<string, Array<{ style: string; purpose: string }>> = {
+  conversion_focus: [
+    { style: 'trustworthy', purpose: 'conversion' },
+    { style: 'influencer', purpose: 'conversion' },
+    { style: 'friendly', purpose: 'recommendation' },
+    { style: 'trustworthy', purpose: 'recommendation' },
+    { style: 'storytelling', purpose: 'conversion' },
+  ],
+  review_focus: [
+    { style: 'trustworthy', purpose: 'review' },
+    { style: 'friendly', purpose: 'review' },
+    { style: 'storytelling', purpose: 'experience' },
+    { style: 'influencer', purpose: 'review' },
+    { style: 'trustworthy', purpose: 'experience' },
+  ],
+  info_focus: [
+    { style: 'expert', purpose: 'informative' },
+    { style: 'trustworthy', purpose: 'informative' },
+    { style: 'expert', purpose: 'comparison' },
+    { style: 'friendly', purpose: 'informative' },
+    { style: 'expert', purpose: 'review' },
+  ],
+  auto: [
+    { style: 'trustworthy', purpose: 'review' },
+    { style: 'friendly', purpose: 'recommendation' },
+    { style: 'expert', purpose: 'informative' },
+    { style: 'storytelling', purpose: 'experience' },
+    { style: 'influencer', purpose: 'conversion' },
+    { style: 'trustworthy', purpose: 'comparison' },
+    { style: 'friendly', purpose: 'review' },
+    { style: 'expert', purpose: 'comparison' },
+  ],
 }
 
 export async function POST(request: NextRequest) {
@@ -37,23 +71,15 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { keyword, style, purpose, count, productName, productFeatures } = body
+    const { keyword, direction, count, productName, productFeatures } = body
 
-    if (!keyword || !style || !purpose || !count) {
+    if (!keyword || !count) {
       return NextResponse.json({ error: '필수 입력값이 누락되었습니다.' }, { status: 400 })
     }
 
     const maxCount = Math.min(count, 20)
     const sessionId = crypto.randomUUID()
-
-    const options: GenerateOptions = {
-      keyword,
-      style,
-      purpose,
-      lengthOption: 'medium',
-      productName,
-      productFeatures,
-    }
+    const combos = DIRECTION_COMBOS[direction] || DIRECTION_COMBOS.auto
 
     // 병렬 생성 (3개씩 배치로 처리)
     const results: { index: number; content: any; isTopPick: boolean }[] = []
@@ -66,15 +92,25 @@ export async function POST(request: NextRequest) {
       )
 
       const batchResults = await Promise.allSettled(
-        batchIndices.map((index) =>
-          generateContent(options, index)
-        )
+        batchIndices.map((index) => {
+          const combo = combos[index % combos.length]
+          const options: GenerateOptions = {
+            keyword,
+            style: combo.style,
+            purpose: combo.purpose,
+            lengthOption: 'medium',
+            productName,
+            productFeatures,
+          }
+          return generateContent(options, index)
+        })
       )
 
       for (let j = 0; j < batchResults.length; j++) {
         const result = batchResults[j]
         const index = batchIndices[j]
         const topPick = isTopPick(index, maxCount)
+        const combo = combos[index % combos.length]
 
         if (result.status === 'fulfilled') {
           results.push({
@@ -87,8 +123,8 @@ export async function POST(request: NextRequest) {
           await supabase.from('generated_content').insert({
             user_id: user.id,
             keyword,
-            style,
-            purpose,
+            style: combo.style,
+            purpose: combo.purpose,
             length_option: 'medium',
             product_name: productName || null,
             product_features: productFeatures || null,

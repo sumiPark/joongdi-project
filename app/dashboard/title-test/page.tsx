@@ -10,21 +10,17 @@ interface TitleResult {
   description: string
 }
 
-const STYLES = [
-  { value: 'trustworthy', label: '신뢰형', emoji: '🤝' },
-  { value: 'friendly', label: '친근형', emoji: '😊' },
-  { value: 'expert', label: '전문가형', emoji: '🎓' },
-  { value: 'influencer', label: '인플루언서형', emoji: '✨' },
-  { value: 'storytelling', label: '스토리형', emoji: '📖' },
+const PLATFORMS = [
+  { value: 'naver', label: '네이버 블로그', desc: '키워드 앞배치, 정보성 강조', emoji: '🟢', recommended: true },
+  { value: 'google', label: '구글 SEO', desc: '검색 의도 매칭, 신뢰감', emoji: '🔵' },
+  { value: 'sns', label: 'SNS / 인스타', desc: '짧고 감성적, 이모지 활용', emoji: '📸' },
 ]
 
-const PURPOSES = [
-  { value: 'informative', label: '정보형', emoji: '📋' },
-  { value: 'review', label: '후기형', emoji: '⭐' },
-  { value: 'comparison', label: '비교형', emoji: '⚖️' },
-  { value: 'recommendation', label: '추천형', emoji: '👍' },
-  { value: 'experience', label: '체험형', emoji: '🎯' },
-  { value: 'conversion', label: '전환형', emoji: '💰' },
+const APPEALS = [
+  { value: 'info_seeker', label: '정보 탐색', desc: '"무엇인가", "어떻게" 형태', emoji: '🔍', recommended: true },
+  { value: 'purchase_ready', label: '구매 결정', desc: '확신·추천·후기 중심', emoji: '🛍️' },
+  { value: 'emotional', label: '감성 공감', desc: '경험담·공감·스토리 중심', emoji: '💬' },
+  { value: 'data_driven', label: '숫자 팩트', desc: 'N일·N가지·수치 신뢰형', emoji: '📊' },
 ]
 
 const COUNT_OPTIONS = [
@@ -54,8 +50,8 @@ function getTypeColor(type: string): string {
 
 export default function TitleTestPage() {
   const [keyword, setKeyword] = useState('')
-  const [style, setStyle] = useState('trustworthy')
-  const [purpose, setPurpose] = useState('informative')
+  const [platform, setPlatform] = useState('naver')
+  const [appeal, setAppeal] = useState('info_seeker')
   const [count, setCount] = useState(10)
   const [productName, setProductName] = useState('')
   const [loading, setLoading] = useState(false)
@@ -77,8 +73,8 @@ export default function TitleTestPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           keyword: keyword.trim(),
-          style,
-          purpose,
+          platform,
+          appeal,
           count,
           productName: productName.trim() || undefined,
         }),
@@ -149,24 +145,44 @@ export default function TitleTestPage() {
             />
           </div>
 
-          {/* 문체 */}
+          {/* 검색 플랫폼 */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">문체</label>
-            <select value={style} onChange={(e) => setStyle(e.target.value)} className="input-field">
-              {STYLES.map((s) => (
-                <option key={s.value} value={s.value}>{s.emoji} {s.label}</option>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">검색 플랫폼</label>
+            <div className="space-y-1.5">
+              {PLATFORMS.map((p) => (
+                <label key={p.value} className={`flex items-center gap-3 p-2.5 rounded-lg border-2 cursor-pointer transition-all ${platform === p.value ? 'border-brand-500 bg-brand-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                  <input type="radio" value={p.value} checked={platform === p.value} onChange={() => setPlatform(p.value)} className="sr-only" />
+                  <span className="text-lg">{p.emoji}</span>
+                  <div>
+                    <div className="flex items-center gap-1">
+                      <span className="font-semibold text-sm text-gray-900">{p.label}</span>
+                      {p.recommended && <span className="text-xs bg-brand-100 text-brand-700 px-1.5 py-0.5 rounded-full">추천</span>}
+                    </div>
+                    <p className="text-xs text-gray-500">{p.desc}</p>
+                  </div>
+                </label>
               ))}
-            </select>
+            </div>
           </div>
 
-          {/* 목적 */}
+          {/* 클릭 소구 */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">글 목적</label>
-            <select value={purpose} onChange={(e) => setPurpose(e.target.value)} className="input-field">
-              {PURPOSES.map((p) => (
-                <option key={p.value} value={p.value}>{p.emoji} {p.label}</option>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">클릭 소구</label>
+            <div className="space-y-1.5">
+              {APPEALS.map((a) => (
+                <label key={a.value} className={`flex items-center gap-3 p-2.5 rounded-lg border-2 cursor-pointer transition-all ${appeal === a.value ? 'border-brand-500 bg-brand-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                  <input type="radio" value={a.value} checked={appeal === a.value} onChange={() => setAppeal(a.value)} className="sr-only" />
+                  <span className="text-lg">{a.emoji}</span>
+                  <div>
+                    <div className="flex items-center gap-1">
+                      <span className="font-semibold text-sm text-gray-900">{a.label}</span>
+                      {a.recommended && <span className="text-xs bg-brand-100 text-brand-700 px-1.5 py-0.5 rounded-full">추천</span>}
+                    </div>
+                    <p className="text-xs text-gray-500">{a.desc}</p>
+                  </div>
+                </label>
               ))}
-            </select>
+            </div>
           </div>
 
           {/* 생성 개수 */}

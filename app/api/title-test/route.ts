@@ -23,38 +23,37 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { keyword, style, purpose, count, productName } = body
+    const { keyword, platform, appeal, count, productName } = body
 
-    if (!keyword || !style || !purpose) {
+    if (!keyword) {
       return NextResponse.json({ error: '필수 입력값이 누락되었습니다.' }, { status: 400 })
     }
 
     const titleCount = Math.min(Math.max(count || 10, 5), 10)
 
-    const STYLE_LABELS: Record<string, string> = {
-      trustworthy: '신뢰형 (과장 없이 솔직한 톤)',
-      friendly: '친근형 (구어체, 대화하듯)',
-      expert: '전문가형 (정보 중심, 신뢰감)',
-      influencer: '인플루언서형 (감성적, 트렌디)',
-      storytelling: '스토리형 (경험 기반, 감성적)',
+    const PLATFORM_GUIDE: Record<string, string> = {
+      naver: '네이버 블로그 최적화. 검색 시 클릭되는 제목. 키워드를 앞부분에 배치하고 정보성을 강조. 네이버 사용자는 실용적인 정보를 기대함.',
+      google: '구글 SEO 최적화. 검색 의도를 명확히 매칭하는 제목. 브랜드/신뢰감을 주는 명확한 정보 전달. 영문 혼용 가능.',
+      sns: 'SNS/인스타그램용. 감성적이고 짧으며 임팩트 있는 제목. 이모지 1-2개 자연스럽게 활용 가능. 공유하고 싶어지는 느낌.',
     }
 
-    const PURPOSE_LABELS: Record<string, string> = {
-      informative: '정보 전달 중심',
-      review: '실제 사용 후기 느낌',
-      comparison: '비교/차별화 강조',
-      recommendation: '구매 추천 유도',
-      experience: '체험/경험 중심',
-      conversion: '광고 전환 최적화',
+    const APPEAL_GUIDE: Record<string, string> = {
+      info_seeker: '정보를 탐색 중인 독자 공략. "무엇인가", "어떻게", "왜", "방법" 형태의 제목이 효과적. 궁금증을 자극하는 방향.',
+      purchase_ready: '구매 결정 단계의 독자 공략. 확신을 주는 제목, 비교·추천·후기 형태. "진짜", "솔직히", "결론" 류의 표현 효과적.',
+      emotional: '감성/공감 소구. 독자의 감정에 직접 닿는 공감형·스토리형 제목. 경험담, 고민 해결, 변화 스토리 중심.',
+      data_driven: '숫자와 팩트 소구. 구체적 수치, 기간, 비율이 들어간 신뢰형 제목. "N일 사용", "N가지 이유", "N% 효과" 형태.',
     }
+
+    const platformKey = platform && PLATFORM_GUIDE[platform] ? platform : 'naver'
+    const appealKey = appeal && APPEAL_GUIDE[appeal] ? appeal : 'info_seeker'
 
     const prompt = `당신은 한국 블로그 SEO 전문가이자 카피라이터입니다.
 키워드에 맞는 클릭률(CTR)이 높은 블로그 제목을 ${titleCount}개 생성해주세요.
 
 **키워드:** ${keyword}
 ${productName ? `**상품명:** ${productName}` : ''}
-**문체:** ${STYLE_LABELS[style] || style}
-**목적:** ${PURPOSE_LABELS[purpose] || purpose}
+**검색 플랫폼:** ${PLATFORM_GUIDE[platformKey]}
+**클릭 소구 방향:** ${APPEAL_GUIDE[appealKey]}
 
 **제목 유형 가이드 (각 유형을 골고루 사용):**
 1. 숫자형: 구체적 수치로 신뢰감 ("7가지 이유", "3개월 사용 후기")
@@ -71,7 +70,7 @@ ${productName ? `**상품명:** ${productName}` : ''}
 **필수 규칙:**
 - 각 제목은 20-35자 이내
 - 키워드를 자연스럽게 포함
-- 클릭하고 싶어지는 매력적인 제목
+- 위에 설정된 플랫폼과 소구 방향을 반드시 반영
 - 각 제목은 완전히 다른 유형과 각도로 접근
 - 스팸성 과장 표현 금지 ("대박", "충격" 남발 금지)
 
@@ -101,7 +100,7 @@ ${productName ? `**상품명:** ${productName}` : ''}
       throw new Error('제목 파싱 오류: ' + text.slice(0, 200))
     }
 
-    return NextResponse.json({ titles: parsed.titles, keyword })
+    return NextResponse.json({ titles: parsed.titles, keyword, platform: platformKey, appeal: appealKey })
   } catch (error) {
     console.error('[title-test] Error:', error)
     return NextResponse.json(

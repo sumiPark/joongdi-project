@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { keyword, style, purpose, lengthOption, productName, productFeatures, productReviewPoints, targetCustomers } = body
+    const { keyword, style, purpose, lengthOption, productName, productFeatures, productReviewPoints, targetCustomers, targetAudience } = body
 
     if (!keyword || !style || !purpose || !lengthOption) {
       return NextResponse.json({ error: '필수 입력값이 누락되었습니다.' }, { status: 400 })
@@ -40,6 +40,7 @@ export async function POST(request: NextRequest) {
       productFeatures,
       productReviewPoints,
       targetCustomers,
+      targetAudience,
     }
 
     // Claude API 호출

@@ -20,21 +20,32 @@ interface BulkResult {
   isTopPick: boolean
 }
 
-const STYLES = [
-  { value: 'trustworthy', label: '신뢰형', emoji: '🤝' },
-  { value: 'friendly', label: '친근형', emoji: '😊' },
-  { value: 'expert', label: '전문가형', emoji: '🎓' },
-  { value: 'influencer', label: '인플루언서형', emoji: '✨' },
-  { value: 'storytelling', label: '스토리형', emoji: '📖' },
-]
-
-const PURPOSES = [
-  { value: 'conversion', label: '전환형', emoji: '💰' },
-  { value: 'recommendation', label: '추천형', emoji: '👍' },
-  { value: 'review', label: '후기형', emoji: '⭐' },
-  { value: 'informative', label: '정보형', emoji: '📋' },
-  { value: 'comparison', label: '비교형', emoji: '⚖️' },
-  { value: 'experience', label: '체험형', emoji: '🎯' },
+const DIRECTIONS = [
+  {
+    value: 'auto',
+    label: 'AI 자동 믹스',
+    desc: '문체·목적을 AI가 자동으로 다양하게 조합 (추천)',
+    emoji: '🤖',
+    recommended: true,
+  },
+  {
+    value: 'conversion_focus',
+    label: '전환·추천 위주',
+    desc: '구매 유도, 전환 최적화 중심으로 생성',
+    emoji: '💰',
+  },
+  {
+    value: 'review_focus',
+    label: '후기·체험 위주',
+    desc: '실사용 후기, 경험담 중심으로 생성',
+    emoji: '⭐',
+  },
+  {
+    value: 'info_focus',
+    label: '정보·비교 위주',
+    desc: '전문 정보, 성분·스펙 비교 중심으로 생성',
+    emoji: '📋',
+  },
 ]
 
 const BULK_COUNTS = [
@@ -46,8 +57,7 @@ const BULK_COUNTS = [
 
 export default function BulkGeneratePage() {
   const [keyword, setKeyword] = useState('')
-  const [style, setStyle] = useState('trustworthy')
-  const [purpose, setPurpose] = useState('conversion')
+  const [direction, setDirection] = useState('auto')
   const [count, setCount] = useState(5)
   const [productName, setProductName] = useState('')
   const [productFeatures, setProductFeatures] = useState('')
@@ -74,8 +84,7 @@ export default function BulkGeneratePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           keyword: keyword.trim(),
-          style,
-          purpose,
+          direction,
           count,
           productName: productName.trim() || undefined,
           productFeatures: productFeatures.trim() || undefined,
@@ -150,24 +159,24 @@ export default function BulkGeneratePage() {
             <input type="text" value={productFeatures} onChange={(e) => setProductFeatures(e.target.value)} className="input-field" placeholder="예: 열 없이 스타일링, 손상 없음" />
           </div>
 
-          {/* 문체 */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">문체</label>
-            <select value={style} onChange={(e) => setStyle(e.target.value)} className="input-field">
-              {STYLES.map(s => (
-                <option key={s.value} value={s.value}>{s.emoji} {s.label}</option>
+          {/* 생성 방향 */}
+          <div className="md:col-span-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-3">생성 방향</label>
+            <div className="grid grid-cols-2 gap-2">
+              {DIRECTIONS.map((d) => (
+                <label key={d.value} className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${direction === d.value ? 'border-brand-500 bg-brand-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                  <input type="radio" value={d.value} checked={direction === d.value} onChange={() => setDirection(d.value)} className="sr-only" />
+                  <span className="text-xl flex-shrink-0">{d.emoji}</span>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-semibold text-sm text-gray-900">{d.label}</span>
+                      {d.recommended && <span className="text-xs bg-brand-100 text-brand-700 px-1.5 py-0.5 rounded-full">추천</span>}
+                    </div>
+                    <p className="text-xs text-gray-500 leading-tight mt-0.5">{d.desc}</p>
+                  </div>
+                </label>
               ))}
-            </select>
-          </div>
-
-          {/* 목적 */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">글 목적</label>
-            <select value={purpose} onChange={(e) => setPurpose(e.target.value)} className="input-field">
-              {PURPOSES.map(p => (
-                <option key={p.value} value={p.value}>{p.emoji} {p.label}</option>
-              ))}
-            </select>
+            </div>
           </div>
 
           {/* 생성 개수 */}
