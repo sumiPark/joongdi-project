@@ -256,7 +256,45 @@ create policy "admins_update_replies"
   on public.qna_replies for update
   using (public.is_admin_user());
 
--- 12. notifications 테이블 (실시간 알림)
+-- 12. blog_profiles 테이블 (블로그 디렉토리)
+create table if not exists public.blog_profiles (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references public.profiles(id) on delete cascade not null unique,
+  author_name text not null,
+  blog_name text not null,
+  blog_url text not null,
+  description text,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+alter table public.blog_profiles enable row level security;
+
+create trigger blog_profiles_updated_at
+  before update on public.blog_profiles
+  for each row execute procedure public.update_updated_at();
+
+-- 승인된 유저 전체 조회 가능
+create policy "approved_users_read_blog_profiles"
+  on public.blog_profiles for select
+  using (public.is_approved());
+
+-- 본인 블로그 프로필 등록
+create policy "users_insert_blog_profile"
+  on public.blog_profiles for insert
+  with check (auth.uid() = user_id and public.is_approved());
+
+-- 본인 블로그 프로필 수정
+create policy "users_update_blog_profile"
+  on public.blog_profiles for update
+  using (auth.uid() = user_id);
+
+-- 본인 블로그 프로필 삭제
+create policy "users_delete_blog_profile"
+  on public.blog_profiles for delete
+  using (auth.uid() = user_id);
+
+-- 13. notifications 테이블 (실시간 알림)
 create table if not exists public.notifications (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references public.profiles(id) on delete cascade not null,

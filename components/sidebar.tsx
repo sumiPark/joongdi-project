@@ -20,6 +20,7 @@ import {
   MessageCircle,
   HelpCircle,
   Settings2,
+  Globe,
 } from 'lucide-react'
 
 interface SidebarProps {
@@ -40,6 +41,7 @@ const boardNavItems = [
   { href: '/dashboard/board/notice', label: '공지사항', icon: Megaphone },
   { href: '/dashboard/board/free', label: '자유 게시판', icon: MessageCircle },
   { href: '/dashboard/board/qna', label: 'QnA', icon: HelpCircle },
+  { href: '/dashboard/showcase', label: '블로그 쇼케이스', icon: Globe },
 ]
 
 const adminNavItems = [
