@@ -34,20 +34,28 @@ export async function POST(
     return NextResponse.json({ error: '내용을 입력해주세요.' }, { status: 400 })
   }
 
-  const { data: existing } = await supabase
+  const { data: existing } = await adminSupabase
     .from('qna_replies').select('id').eq('post_id', params.id).single()
 
+  let reply
   if (existing) {
-    await supabase.from('qna_replies')
+    const { data, error } = await adminSupabase.from('qna_replies')
       .update({ content: content.trim(), updated_at: new Date().toISOString() })
       .eq('post_id', params.id)
+      .select()
+      .single()
+    if (error) return NextResponse.json({ error: '답변 수정 중 오류가 발생했습니다.' }, { status: 500 })
+    reply = data
   } else {
-    await supabase.from('qna_replies').insert({
+    const { data, error } = await adminSupabase.from('qna_replies').insert({
       post_id: params.id,
+      admin_id: user.id,
       admin_name: profile.name || '관리자',
       content: content.trim(),
-    })
+    }).select().single()
+    if (error) return NextResponse.json({ error: '답변 등록 중 오류가 발생했습니다.' }, { status: 500 })
+    reply = data
   }
 
-  return NextResponse.json({ success: true })
+  return NextResponse.json({ reply })
 }
