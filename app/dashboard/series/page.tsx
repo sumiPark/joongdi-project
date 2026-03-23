@@ -204,7 +204,7 @@ export default function SeriesPage() {
               value={productFeatures}
               onChange={(e) => setProductFeatures(e.target.value)}
               className="input-field"
-              placeholder="예: 열 없이 스타일링, 코안다 효과"
+              placeholder="예: 브로멜라인 효소 함유, 식물성 원료, 간편 스틱 포장"
             />
           </div>
 

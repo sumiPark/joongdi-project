@@ -241,15 +241,15 @@ export default function GeneratePage() {
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">주요 특징 / 핵심 포인트</label>
-                  <textarea value={productFeatures} onChange={(e) => setProductFeatures(e.target.value)} className="input-field text-sm h-20 resize-none" placeholder="예: 열 없이 머리카락 손상 없음, 코안다 효과 활용..." />
+                  <textarea value={productFeatures} onChange={(e) => setProductFeatures(e.target.value)} className="input-field text-sm h-20 resize-none" placeholder="예: 브로멜라인 효소 함유, 식물성 원료 100%, 공복 섭취 권장, 간편 스틱 포장" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">후기 포인트</label>
-                  <textarea value={productReviewPoints} onChange={(e) => setProductReviewPoints(e.target.value)} className="input-field text-sm h-20 resize-none" placeholder="예: 가격 대비 성능 좋음, 헤어 볼륨 살아남..." />
+                  <textarea value={productReviewPoints} onChange={(e) => setProductReviewPoints(e.target.value)} className="input-field text-sm h-20 resize-none" placeholder="예: 2주 만에 효과 느꼈어요, 냄새 없어 먹기 편함, 공복에 마셔도 부담 없음" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">타겟 고객</label>
-                  <input type="text" value={targetCustomers} onChange={(e) => setTargetCustomers(e.target.value)} className="input-field text-sm" placeholder="예: 20-30대 여성, 헤어 케어에 관심 있는 분" />
+                  <input type="text" value={targetCustomers} onChange={(e) => setTargetCustomers(e.target.value)} className="input-field text-sm" placeholder="예: 건강 관리 시작하려는 30대, 다이어트·효소에 관심 있는 여성" />
                 </div>
               </div>
             )}

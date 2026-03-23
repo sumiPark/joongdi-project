@@ -156,7 +156,7 @@ export default function BulkGeneratePage() {
           {/* 상품 특징 */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">핵심 특징 <span className="text-gray-400 font-normal">(선택)</span></label>
-            <input type="text" value={productFeatures} onChange={(e) => setProductFeatures(e.target.value)} className="input-field" placeholder="예: 열 없이 스타일링, 손상 없음" />
+            <input type="text" value={productFeatures} onChange={(e) => setProductFeatures(e.target.value)} className="input-field" placeholder="예: 천연 발효 성분, 흡수율 높은 저분자 설계, 무방부제" />
           </div>
 
           {/* 생성 방향 */}
