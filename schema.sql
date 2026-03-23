@@ -121,6 +121,157 @@ create trigger profiles_updated_at
   before update on public.profiles
   for each row execute procedure public.update_updated_at();
 
+-- 8. feature_settings 테이블 (기능 on/off)
+create table if not exists public.feature_settings (
+  key text primary key,
+  label text not null,
+  enabled boolean not null default true,
+  updated_at timestamptz default now()
+);
+
+-- 기본 기능 데이터 삽입
+insert into public.feature_settings (key, label, enabled) values
+  ('generate', '콘텐츠 생성', true),
+  ('bulk', '대량 생성', true),
+  ('title_test', '제목 A/B 테스트', true),
+  ('series', '시리즈 글 생성', true)
+on conflict (key) do nothing;
+
+alter table public.feature_settings enable row level security;
+
+-- 모든 인증 유저가 읽을 수 있음
+create policy "anyone_read_feature_settings"
+  on public.feature_settings for select
+  using (auth.role() = 'authenticated');
+
+-- 관리자만 수정 가능
+create policy "admins_update_feature_settings"
+  on public.feature_settings for update
+  using (
+    exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin = true)
+  );
+
+-- 9. board_posts 테이블 (게시판 글)
+create table if not exists public.board_posts (
+  id uuid default gen_random_uuid() primary key,
+  board_type text not null check (board_type in ('notice', 'free', 'qna')),
+  author_id uuid references public.profiles(id) on delete cascade not null,
+  author_name text not null,
+  title text not null,
+  content text not null,
+  is_pinned boolean not null default false,
+  view_count integer not null default 0,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+alter table public.board_posts enable row level security;
+
+create trigger board_posts_updated_at
+  before update on public.board_posts
+  for each row execute procedure public.update_updated_at();
+
+-- 승인된 유저는 모두 읽기 가능
+create policy "approved_users_read_posts"
+  on public.board_posts for select
+  using (
+    exists (select 1 from public.profiles p where p.id = auth.uid() and p.status = 'approved')
+  );
+
+-- 승인된 유저는 free/qna 글 작성 가능 (notice는 관리자만)
+create policy "users_insert_posts"
+  on public.board_posts for insert
+  with check (
+    auth.uid() = author_id
+    and exists (select 1 from public.profiles p where p.id = auth.uid() and p.status = 'approved')
+    and (
+      board_type in ('free', 'qna')
+      or exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin = true)
+    )
+  );
+
+-- 작성자 또는 관리자만 수정/삭제
+create policy "author_or_admin_update_posts"
+  on public.board_posts for update
+  using (
+    author_id = auth.uid()
+    or exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin = true)
+  );
+
+create policy "author_or_admin_delete_posts"
+  on public.board_posts for delete
+  using (
+    author_id = auth.uid()
+    or exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin = true)
+  );
+
+-- 10. board_comments 테이블 (자유 게시판 댓글)
+create table if not exists public.board_comments (
+  id uuid default gen_random_uuid() primary key,
+  post_id uuid references public.board_posts(id) on delete cascade not null,
+  author_id uuid references public.profiles(id) on delete cascade not null,
+  author_name text not null,
+  content text not null,
+  created_at timestamptz default now()
+);
+
+alter table public.board_comments enable row level security;
+
+create policy "approved_users_read_comments"
+  on public.board_comments for select
+  using (
+    exists (select 1 from public.profiles p where p.id = auth.uid() and p.status = 'approved')
+  );
+
+create policy "users_insert_comments"
+  on public.board_comments for insert
+  with check (
+    auth.uid() = author_id
+    and exists (select 1 from public.profiles p where p.id = auth.uid() and p.status = 'approved')
+  );
+
+create policy "author_or_admin_delete_comments"
+  on public.board_comments for delete
+  using (
+    author_id = auth.uid()
+    or exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin = true)
+  );
+
+-- 11. qna_replies 테이블 (QnA 관리자 답변)
+create table if not exists public.qna_replies (
+  id uuid default gen_random_uuid() primary key,
+  post_id uuid references public.board_posts(id) on delete cascade not null unique,
+  admin_id uuid references public.profiles(id) on delete cascade not null,
+  admin_name text not null,
+  content text not null,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+alter table public.qna_replies enable row level security;
+
+create trigger qna_replies_updated_at
+  before update on public.qna_replies
+  for each row execute procedure public.update_updated_at();
+
+create policy "approved_users_read_replies"
+  on public.qna_replies for select
+  using (
+    exists (select 1 from public.profiles p where p.id = auth.uid() and p.status = 'approved')
+  );
+
+create policy "admins_insert_replies"
+  on public.qna_replies for insert
+  with check (
+    exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin = true)
+  );
+
+create policy "admins_update_replies"
+  on public.qna_replies for update
+  using (
+    exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin = true)
+  );
+
 -- ============================================================
 -- 관리자 수동 설정 (필요시)
 -- 아래 쿼리에서 이메일을 본인 관리자 이메일로 변경 후 실행:

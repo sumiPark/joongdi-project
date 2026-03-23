@@ -15,31 +15,41 @@ import {
   ChevronRight,
   FlaskConical,
   BookOpen,
+  Megaphone,
+  MessageCircle,
+  HelpCircle,
+  Settings2,
 } from 'lucide-react'
 
 interface SidebarProps {
   isAdmin?: boolean
   userName?: string
+  featureSettings?: Record<string, boolean>
 }
 
-const dashboardNavItems = [
-  { href: '/dashboard', label: '대시보드', icon: LayoutDashboard, exact: true },
-  { href: '/dashboard/generate', label: '콘텐츠 생성', icon: PenLine, exact: false },
-  { href: '/dashboard/bulk', label: '대량 생성', icon: Layers, exact: false },
-  { href: '/dashboard/title-test', label: '제목 A/B 테스트', icon: FlaskConical, exact: false },
-  { href: '/dashboard/series', label: '시리즈 글 생성', icon: BookOpen, exact: false },
-  { href: '/dashboard/history', label: '생성 기록', icon: History, exact: false },
+const generateNavItems = [
+  { href: '/dashboard/generate', label: '콘텐츠 생성', icon: PenLine, featureKey: 'generate' },
+  { href: '/dashboard/bulk', label: '대량 생성', icon: Layers, featureKey: 'bulk' },
+  { href: '/dashboard/title-test', label: '제목 A/B 테스트', icon: FlaskConical, featureKey: 'title_test' },
+  { href: '/dashboard/series', label: '시리즈 글 생성', icon: BookOpen, featureKey: 'series' },
+]
+
+const boardNavItems = [
+  { href: '/dashboard/board/notice', label: '공지사항', icon: Megaphone },
+  { href: '/dashboard/board/free', label: '자유 게시판', icon: MessageCircle },
+  { href: '/dashboard/board/qna', label: 'QnA', icon: HelpCircle },
 ]
 
 const adminNavItems = [
   { href: '/admin', label: '관리자 홈', icon: LayoutDashboard, exact: true },
   { href: '/admin/users', label: '회원 관리', icon: Users, exact: false },
+  { href: '/admin/features', label: '기능 관리', icon: Settings2, exact: false },
 ]
 
-export default function Sidebar({ isAdmin = false, userName }: SidebarProps) {
+export default function Sidebar({ isAdmin = false, userName, featureSettings }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const navItems = isAdmin ? adminNavItems : dashboardNavItems
+  const navItems = isAdmin ? adminNavItems : []
 
   async function handleLogout() {
     const supabase = createClient()
@@ -65,24 +75,67 @@ export default function Sidebar({ isAdmin = false, userName }: SidebarProps) {
       </div>
 
       {/* 네비게이션 */}
-      <nav className="flex-1 p-4 space-y-1">
-        {isAdmin && (
-          <div className="text-xs font-semibold text-brand-400 uppercase tracking-wider px-3 mb-3">
-            관리자 메뉴
-          </div>
+      <nav className="flex-1 p-4 overflow-y-auto space-y-1">
+        {isAdmin ? (
+          <>
+            <div className="text-xs font-semibold text-brand-400 uppercase tracking-wider px-3 mb-3">
+              관리자 메뉴
+            </div>
+            {navItems.map((item) => {
+              const isActive = item.exact
+                ? pathname === item.href
+                : pathname.startsWith(item.href)
+              const Icon = item.icon
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150',
+                    isActive
+                      ? 'bg-brand-600 text-white'
+                      : 'text-brand-300 hover:bg-white/10 hover:text-white'
+                  )}
+                >
+                  <Icon size={18} className="flex-shrink-0" />
+                  <span className="flex-1">{item.label}</span>
+                  {isActive && <ChevronRight size={14} className="opacity-60" />}
+                </Link>
+              )
+            })}
+            <div className="border-t border-white/10 my-3" />
+          </>
+        ) : (
+          <Link
+            href="/dashboard"
+            className={cn(
+              'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150',
+              pathname === '/dashboard'
+                ? 'bg-brand-600 text-white'
+                : 'text-brand-300 hover:bg-white/10 hover:text-white'
+            )}
+          >
+            <LayoutDashboard size={18} className="flex-shrink-0" />
+            <span className="flex-1">대시보드</span>
+            {pathname === '/dashboard' && <ChevronRight size={14} className="opacity-60" />}
+          </Link>
         )}
-        {navItems.map((item) => {
-          const isActive = item.exact
-            ? pathname === item.href
-            : pathname.startsWith(item.href)
-          const Icon = item.icon
 
+        {/* 콘텐츠 생성 메뉴 */}
+        <div className="text-xs font-semibold text-brand-400 uppercase tracking-wider px-3 pt-2 pb-1">
+          콘텐츠 생성
+        </div>
+        {generateNavItems.map((item) => {
+          const enabled = featureSettings ? (featureSettings[item.featureKey] !== false) : true
+          if (!enabled) return null
+          const isActive = pathname.startsWith(item.href)
+          const Icon = item.icon
           return (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 group',
+                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150',
                 isActive
                   ? 'bg-brand-600 text-white'
                   : 'text-brand-300 hover:bg-white/10 hover:text-white'
@@ -95,28 +148,45 @@ export default function Sidebar({ isAdmin = false, userName }: SidebarProps) {
           )
         })}
 
-        {/* 관리자면 대시보드 링크도 표시 */}
-        {isAdmin && (
-          <>
-            <div className="border-t border-white/10 my-3" />
-            <div className="text-xs font-semibold text-brand-400 uppercase tracking-wider px-3 mb-3">
-              사용자 메뉴
-            </div>
-            {dashboardNavItems.slice(1).map((item) => {
-              const Icon = item.icon
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-brand-400 hover:bg-white/10 hover:text-white transition-all duration-150"
-                >
-                  <Icon size={18} className="flex-shrink-0" />
-                  <span>{item.label}</span>
-                </Link>
-              )
-            })}
-          </>
-        )}
+        <Link
+          href="/dashboard/history"
+          className={cn(
+            'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150',
+            pathname.startsWith('/dashboard/history')
+              ? 'bg-brand-600 text-white'
+              : 'text-brand-300 hover:bg-white/10 hover:text-white'
+          )}
+        >
+          <History size={18} className="flex-shrink-0" />
+          <span className="flex-1">생성 기록</span>
+          {pathname.startsWith('/dashboard/history') && <ChevronRight size={14} className="opacity-60" />}
+        </Link>
+
+        {/* 게시판 */}
+        <div className="border-t border-white/10 my-3" />
+        <div className="text-xs font-semibold text-brand-400 uppercase tracking-wider px-3 pb-1">
+          게시판
+        </div>
+        {boardNavItems.map((item) => {
+          const isActive = pathname.startsWith(item.href)
+          const Icon = item.icon
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150',
+                isActive
+                  ? 'bg-brand-600 text-white'
+                  : 'text-brand-300 hover:bg-white/10 hover:text-white'
+              )}
+            >
+              <Icon size={18} className="flex-shrink-0" />
+              <span className="flex-1">{item.label}</span>
+              {isActive && <ChevronRight size={14} className="opacity-60" />}
+            </Link>
+          )
+        })}
       </nav>
 
       {/* 하단 유저 정보 */}
