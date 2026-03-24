@@ -9,5 +9,6 @@ export async function GET() {
     .from('sns_links')
     .select('id, platform, label, url, display_order, enabled')
     .order('display_order')
-  return NextResponse.json({ links: data || [], error: error?.message ?? null })
+  const links = (data || []).filter(l => l.enabled === true)
+  return NextResponse.json({ links })
 }
