@@ -60,32 +60,33 @@ export default function SnsLinks({ variant = 'topbar' }: SnsLinksProps) {
 
   if (links.length === 0) return null
 
-  /* ── 로그인/가입/대기 화면 상단 - 앱 아이콘 위젯 ── */
+  /* ── 로그인/가입/대기 화면 상단 - SNS 카드 섹션 ── */
   if (variant === 'topbar') {
     return (
-      <div className="w-full bg-black/30 backdrop-blur-md border-b border-white/10 py-3 px-4">
-        <div className="flex items-center justify-center gap-4 flex-wrap">
+      <div className="w-full bg-black/25 backdrop-blur-md border-b border-white/10 py-5 px-6">
+        <p className="text-center text-white/40 text-[11px] font-semibold tracking-widest uppercase mb-4">
+          공식 채널 팔로우
+        </p>
+        <div className="flex items-center justify-center gap-3 flex-wrap">
           {links.map((link) => {
             const p = SNS_PLATFORMS[link.platform] ?? FALLBACK_PLATFORM
             const Icon = p.icon
-            const shortLabel = link.label.length > 8 ? link.label.slice(0, 8) : link.label
             return (
               <a
                 key={link.id}
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                title={link.label}
-                className="flex flex-col items-center gap-1 hover:scale-110 transition-transform duration-150"
+                className="group flex flex-col items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/10 hover:border-white/25 rounded-2xl px-4 py-3 w-20 transition-all duration-200 hover:scale-105 hover:-translate-y-0.5 shadow-lg"
               >
                 <div
                   style={{ backgroundColor: p.bg, color: p.fg }}
-                  className="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg"
+                  className="w-11 h-11 rounded-xl flex items-center justify-center shadow-md"
                 >
-                  <Icon size={17} />
+                  <Icon size={22} />
                 </div>
-                <span className="text-[9px] text-white/60 font-medium text-center">
-                  {shortLabel}
+                <span className="text-white/70 group-hover:text-white text-[11px] font-semibold text-center leading-tight transition-colors">
+                  {link.label}
                 </span>
               </a>
             )
