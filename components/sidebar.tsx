@@ -199,10 +199,13 @@ export default function Sidebar({ isAdmin = false, userName, userId, featureSett
           <span className="flex-1">생성 기록</span>
           {pathname.startsWith('/dashboard/history') && <ChevronRight size={14} className="opacity-60" />}
         </Link>
+
       </nav>
 
       {/* SNS 채널 위젯 */}
-      <SnsLinks variant="sidebar" />
+      <div className="flex-shrink-0">
+        <SnsLinks variant="sidebar" />
+      </div>
 
       {/* 하단 유저 정보 */}
       <div className="p-4 border-t border-white/10">

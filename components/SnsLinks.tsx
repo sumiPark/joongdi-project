@@ -96,13 +96,13 @@ export default function SnsLinks({ variant = 'topbar' }: SnsLinksProps) {
     )
   }
 
-  /* ── 사이드바 - 컬러 pill 버튼 위젯 ── */
+  /* ── 사이드바 - 수평 스크롤 pill 위젯 ── */
   return (
     <div className="mx-3 my-3 rounded-2xl bg-white/5 border border-white/10 p-3">
       <p className="text-[10px] font-semibold text-brand-400 uppercase tracking-widest mb-2.5 px-1">
         공식 채널
       </p>
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
         {links.map((link) => {
           const p = SNS_PLATFORMS[link.platform] ?? FALLBACK_PLATFORM
           const Icon = p.icon
@@ -113,7 +113,7 @@ export default function SnsLinks({ variant = 'topbar' }: SnsLinksProps) {
               target="_blank"
               rel="noopener noreferrer"
               style={{ backgroundColor: p.bg, color: p.fg }}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-bold hover:opacity-85 hover:scale-105 transition-all duration-150 shadow-md"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-bold hover:opacity-85 transition-opacity flex-shrink-0 shadow-md"
             >
               <Icon size={11} />
               <span>{link.label}</span>
