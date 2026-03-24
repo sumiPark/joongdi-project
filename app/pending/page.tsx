@@ -15,7 +15,9 @@ export default function PendingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 flex flex-col">
+      <SnsLinks variant="topbar" />
+      <div className="flex-1 flex items-center justify-center p-4">
       <div className="w-full max-w-md text-center">
         <div className="bg-white rounded-2xl shadow-2xl p-10">
           <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -46,8 +48,7 @@ export default function PendingPage() {
             로그아웃
           </button>
         </div>
-
-        <SnsLinks />
+      </div>
       </div>
     </div>
   )

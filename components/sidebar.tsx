@@ -201,8 +201,8 @@ export default function Sidebar({ isAdmin = false, userName, userId, featureSett
         </Link>
       </nav>
 
-      {/* 하단 SNS 링크 */}
-      <div className="px-4 pb-3">
+      {/* SNS 채널 */}
+      <div className="border-t border-white/10">
         <SnsLinks variant="sidebar" />
       </div>
 

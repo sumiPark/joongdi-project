@@ -57,7 +57,9 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 flex flex-col">
+      <SnsLinks variant="topbar" />
+      <div className="flex-1 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* 로고 */}
         <div className="text-center mb-8">
@@ -151,8 +153,7 @@ export default function RegisterPage() {
             </Link>
           </p>
         </div>
-
-        <SnsLinks />
+      </div>
       </div>
     </div>
   )

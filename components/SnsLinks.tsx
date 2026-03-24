@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { ExternalLink } from 'lucide-react'
 import {
   FaInstagram, FaYoutube, FaFacebook, FaTiktok,
   FaLinkedin, FaDiscord, FaBlogger,
@@ -44,10 +45,11 @@ export const FALLBACK_PLATFORM: PlatformConfig = {
 }
 
 interface SnsLinksProps {
-  variant?: 'bar' | 'sidebar'
+  /** topbar: 로그인/가입 상단 배너 | sidebar: 사이드바 채널 목록 */
+  variant?: 'topbar' | 'sidebar'
 }
 
-export default function SnsLinks({ variant = 'bar' }: SnsLinksProps) {
+export default function SnsLinks({ variant = 'topbar' }: SnsLinksProps) {
   const [links, setLinks] = useState<SnsLink[]>([])
 
   useEffect(() => {
@@ -59,39 +61,52 @@ export default function SnsLinks({ variant = 'bar' }: SnsLinksProps) {
 
   if (links.length === 0) return null
 
-  if (variant === 'sidebar') {
+  /* ── 로그인/가입/대기 화면 상단 배너 ── */
+  if (variant === 'topbar') {
     return (
-      <div className="flex items-center gap-1.5 flex-wrap px-1">
-        {links.map((link) => {
-          const p = SNS_PLATFORMS[link.platform] ?? FALLBACK_PLATFORM
-          const Icon = p.icon
-          return (
-            <a
-              key={link.id}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              title={link.label}
-              style={{ backgroundColor: p.bg, color: p.fg }}
-              className="w-7 h-7 rounded-lg flex items-center justify-center hover:opacity-75 hover:scale-110 transition-all duration-150 flex-shrink-0"
-            >
-              <Icon size={14} />
-            </a>
-          )
-        })}
+      <div className="w-full bg-black/20 backdrop-blur-sm border-b border-white/10 py-2 px-4">
+        <div className="flex items-center justify-center gap-x-4 gap-y-1.5 flex-wrap">
+          <span className="text-white/40 text-[11px] font-semibold tracking-widest uppercase">
+            공식 채널
+          </span>
+          <div className="w-px h-3 bg-white/20 hidden sm:block" />
+          <div className="flex items-center gap-1.5 flex-wrap justify-center">
+            {links.map((link) => {
+              const p = SNS_PLATFORMS[link.platform] ?? FALLBACK_PLATFORM
+              const Icon = p.icon
+              return (
+                <a
+                  key={link.id}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/10 hover:bg-white/20 transition-all duration-150"
+                >
+                  <span
+                    style={{ backgroundColor: p.bg, color: p.fg }}
+                    className="w-4 h-4 rounded flex items-center justify-center flex-shrink-0"
+                  >
+                    <Icon size={9} />
+                  </span>
+                  <span className="text-white/70 text-[11px] font-medium group-hover:text-white transition-colors">
+                    {link.label}
+                  </span>
+                </a>
+              )
+            })}
+          </div>
+        </div>
       </div>
     )
   }
 
-  // bar variant: 로그인/가입/대기 화면 하단
+  /* ── 사이드바 채널 목록 ── */
   return (
-    <div className="mt-6 text-center">
-      <div className="flex items-center justify-center gap-2 mb-3">
-        <div className="h-px w-12 bg-white/20" />
-        <p className="text-white/40 text-xs">팔로우하기</p>
-        <div className="h-px w-12 bg-white/20" />
+    <div className="px-4 pb-2">
+      <div className="text-xs font-semibold text-brand-400 uppercase tracking-wider px-3 pt-3 pb-2">
+        공식 채널
       </div>
-      <div className="flex items-center justify-center gap-2 flex-wrap">
+      <div className="space-y-0.5">
         {links.map((link) => {
           const p = SNS_PLATFORMS[link.platform] ?? FALLBACK_PLATFORM
           const Icon = p.icon
@@ -101,12 +116,16 @@ export default function SnsLinks({ variant = 'bar' }: SnsLinksProps) {
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              title={link.label}
-              style={{ backgroundColor: p.bg, color: p.fg }}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-full text-xs font-semibold hover:opacity-90 hover:scale-105 transition-all duration-150 shadow-sm"
+              className="flex items-center gap-3 px-3 py-2 rounded-lg text-brand-300 hover:bg-white/10 hover:text-white transition-all duration-150 group"
             >
-              <Icon size={14} />
-              <span>{link.label}</span>
+              <span
+                style={{ backgroundColor: p.bg, color: p.fg }}
+                className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0"
+              >
+                <Icon size={12} />
+              </span>
+              <span className="flex-1 text-sm font-medium">{link.label}</span>
+              <ExternalLink size={12} className="opacity-0 group-hover:opacity-50 transition-opacity flex-shrink-0" />
             </a>
           )
         })}
