@@ -60,28 +60,33 @@ export default function SnsLinks({ variant = 'topbar' }: SnsLinksProps) {
 
   if (links.length === 0) return null
 
-  /* ── 로그인/가입/대기 화면 상단 배너 ── */
+  /* ── 로그인/가입/대기 화면 상단 - 앱 아이콘 위젯 ── */
   if (variant === 'topbar') {
     return (
-      <div className="w-full bg-black/30 backdrop-blur-md border-b border-white/10 py-2.5 px-4">
-        <div className="flex items-center justify-center gap-2 flex-wrap">
-          <span className="text-white/50 text-xs font-semibold tracking-widest uppercase mr-1">
-            팔로우
-          </span>
+      <div className="w-full bg-black/30 backdrop-blur-md border-b border-white/10 py-3 px-4">
+        <div className="flex items-center justify-center gap-4 flex-wrap">
           {links.map((link) => {
             const p = SNS_PLATFORMS[link.platform] ?? FALLBACK_PLATFORM
             const Icon = p.icon
+            const shortLabel = link.label.length > 8 ? link.label.slice(0, 8) : link.label
             return (
               <a
                 key={link.id}
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ backgroundColor: p.bg, color: p.fg }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold hover:opacity-85 hover:scale-105 transition-all duration-150 shadow-md"
+                title={link.label}
+                className="flex flex-col items-center gap-1 hover:scale-110 transition-transform duration-150"
               >
-                <Icon size={12} />
-                <span>{link.label}</span>
+                <div
+                  style={{ backgroundColor: p.bg, color: p.fg }}
+                  className="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg"
+                >
+                  <Icon size={17} />
+                </div>
+                <span className="text-[9px] text-white/60 font-medium text-center">
+                  {shortLabel}
+                </span>
               </a>
             )
           })}
@@ -90,35 +95,27 @@ export default function SnsLinks({ variant = 'topbar' }: SnsLinksProps) {
     )
   }
 
-  /* ── 사이드바 앱 아이콘 위젯 ── */
+  /* ── 사이드바 - 컬러 pill 버튼 위젯 ── */
   return (
     <div className="mx-3 my-3 rounded-2xl bg-white/5 border border-white/10 p-3">
-      <p className="text-[10px] font-semibold text-brand-400 uppercase tracking-widest mb-3 px-1">
+      <p className="text-[10px] font-semibold text-brand-400 uppercase tracking-widest mb-2.5 px-1">
         공식 채널
       </p>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1.5">
         {links.map((link) => {
           const p = SNS_PLATFORMS[link.platform] ?? FALLBACK_PLATFORM
           const Icon = p.icon
-          const shortLabel = link.label.length > 8 ? link.label.slice(0, 8) : link.label
           return (
             <a
               key={link.id}
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              title={link.label}
-              className="flex flex-col items-center gap-1.5 hover:scale-110 transition-transform duration-150"
+              style={{ backgroundColor: p.bg, color: p.fg }}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-bold hover:opacity-85 hover:scale-105 transition-all duration-150 shadow-md"
             >
-              <div
-                style={{ backgroundColor: p.bg, color: p.fg }}
-                className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg"
-              >
-                <Icon size={18} />
-              </div>
-              <span className="text-[9px] text-brand-300 font-medium text-center leading-tight w-11 truncate">
-                {shortLabel}
-              </span>
+              <Icon size={11} />
+              <span>{link.label}</span>
             </a>
           )
         })}
