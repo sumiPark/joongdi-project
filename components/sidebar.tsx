@@ -21,7 +21,9 @@ import {
   HelpCircle,
   Settings2,
   Globe,
+  Share2,
 } from 'lucide-react'
+import SnsLinks from './SnsLinks'
 
 interface SidebarProps {
   isAdmin?: boolean
@@ -48,6 +50,7 @@ const adminNavItems = [
   { href: '/admin', label: '관리자 홈', icon: LayoutDashboard, exact: true },
   { href: '/admin/users', label: '회원 관리', icon: Users, exact: false },
   { href: '/admin/features', label: '기능 관리', icon: Settings2, exact: false },
+  { href: '/admin/sns', label: 'SNS 채널 관리', icon: Share2, exact: false },
 ]
 
 export default function Sidebar({ isAdmin = false, userName, userId, featureSettings }: SidebarProps) {
@@ -197,6 +200,11 @@ export default function Sidebar({ isAdmin = false, userName, userId, featureSett
           {pathname.startsWith('/dashboard/history') && <ChevronRight size={14} className="opacity-60" />}
         </Link>
       </nav>
+
+      {/* 하단 SNS 링크 */}
+      <div className="px-4 pb-3">
+        <SnsLinks variant="sidebar" />
+      </div>
 
       {/* 하단 유저 정보 */}
       <div className="p-4 border-t border-white/10">

@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import SnsLinks from '@/components/SnsLinks'
 
 export default function PendingPage() {
   const router = useRouter()
@@ -45,6 +46,8 @@ export default function PendingPage() {
             로그아웃
           </button>
         </div>
+
+        <SnsLinks />
       </div>
     </div>
   )

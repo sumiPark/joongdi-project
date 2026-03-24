@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import toast from 'react-hot-toast'
+import SnsLinks from '@/components/SnsLinks'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -105,6 +106,8 @@ export default function LoginPage() {
             </Link>
           </p>
         </div>
+
+        <SnsLinks />
       </div>
     </div>
   )
