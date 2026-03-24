@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import {
   FaInstagram, FaYoutube, FaFacebook, FaTiktok,
   FaLinkedin, FaDiscord, FaBlogger,
@@ -50,6 +51,9 @@ interface SnsLinksProps {
 
 export default function SnsLinks({ variant = 'topbar' }: SnsLinksProps) {
   const [links, setLinks] = useState<SnsLink[]>([])
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
 
   useEffect(() => {
     fetch('/api/sns')
@@ -57,6 +61,26 @@ export default function SnsLinks({ variant = 'topbar' }: SnsLinksProps) {
       .then(data => setLinks(data.links || []))
       .catch(() => {})
   }, [])
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    const update = () => {
+      setCanScrollLeft(el.scrollLeft > 0)
+      setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1)
+    }
+    update()
+    el.addEventListener('scroll', update)
+    window.addEventListener('resize', update)
+    return () => {
+      el.removeEventListener('scroll', update)
+      window.removeEventListener('resize', update)
+    }
+  }, [links])
+
+  function scroll(dir: 'left' | 'right') {
+    scrollRef.current?.scrollBy({ left: dir === 'left' ? -120 : 120, behavior: 'smooth' })
+  }
 
   if (links.length === 0) return null
 
@@ -102,24 +126,45 @@ export default function SnsLinks({ variant = 'topbar' }: SnsLinksProps) {
       <p className="text-[10px] font-semibold text-brand-400 uppercase tracking-widest mb-2.5 px-1">
         공식 채널
       </p>
-      <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
-        {links.map((link) => {
-          const p = SNS_PLATFORMS[link.platform] ?? FALLBACK_PLATFORM
-          const Icon = p.icon
-          return (
-            <a
-              key={link.id}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ backgroundColor: p.bg, color: p.fg }}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-bold hover:opacity-85 transition-opacity flex-shrink-0 shadow-md"
-            >
-              <Icon size={11} />
-              <span>{link.label}</span>
-            </a>
-          )
-        })}
+      <div className="relative flex items-center">
+        {canScrollLeft && (
+          <button
+            onClick={() => scroll('left')}
+            className="absolute left-0 z-10 w-5 h-5 flex items-center justify-center rounded-full bg-brand-800 text-white hover:bg-brand-700 transition-colors flex-shrink-0 shadow"
+          >
+            <ChevronLeft size={12} />
+          </button>
+        )}
+        <div
+          ref={scrollRef}
+          className="flex gap-1.5 overflow-x-auto scrollbar-none px-0.5"
+        >
+          {links.map((link) => {
+            const p = SNS_PLATFORMS[link.platform] ?? FALLBACK_PLATFORM
+            const Icon = p.icon
+            return (
+              <a
+                key={link.id}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ backgroundColor: p.bg, color: p.fg }}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-bold hover:opacity-85 transition-opacity flex-shrink-0 shadow-md"
+              >
+                <Icon size={11} />
+                <span>{link.label}</span>
+              </a>
+            )
+          })}
+        </div>
+        {canScrollRight && (
+          <button
+            onClick={() => scroll('right')}
+            className="absolute right-0 z-10 w-5 h-5 flex items-center justify-center rounded-full bg-brand-800 text-white hover:bg-brand-700 transition-colors flex-shrink-0 shadow"
+          >
+            <ChevronRight size={12} />
+          </button>
+        )}
       </div>
     </div>
   )
