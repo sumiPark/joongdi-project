@@ -60,14 +60,14 @@ export default function SnsLinks({ variant = 'topbar' }: SnsLinksProps) {
 
   if (links.length === 0) return null
 
-  /* ── 로그인/가입/대기 화면 상단 - SNS 카드 섹션 ── */
+  /* ── 로그인/가입/대기 화면 상단 - SNS 가로 카드 ── */
   if (variant === 'topbar') {
     return (
-      <div className="w-full bg-black/25 backdrop-blur-md border-b border-white/10 py-5 px-6">
-        <p className="text-center text-white/40 text-[11px] font-semibold tracking-widest uppercase mb-4">
-          공식 채널 팔로우
-        </p>
-        <div className="flex items-center justify-center gap-3 flex-wrap">
+      <div className="w-full bg-black/25 backdrop-blur-md border-b border-white/10 py-2.5 px-4">
+        <div className="flex items-center justify-center gap-2 flex-wrap">
+          <span className="text-white/35 text-[10px] font-semibold tracking-widest uppercase mr-1">
+            팔로우
+          </span>
           {links.map((link) => {
             const p = SNS_PLATFORMS[link.platform] ?? FALLBACK_PLATFORM
             const Icon = p.icon
@@ -77,15 +77,15 @@ export default function SnsLinks({ variant = 'topbar' }: SnsLinksProps) {
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex flex-col items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/10 hover:border-white/25 rounded-2xl px-4 py-3 w-20 transition-all duration-200 hover:scale-105 hover:-translate-y-0.5 shadow-lg"
+                className="group flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/10 hover:border-white/25 rounded-xl px-3 py-2 transition-all duration-200 hover:scale-105 shadow-md"
               >
                 <div
                   style={{ backgroundColor: p.bg, color: p.fg }}
-                  className="w-11 h-11 rounded-xl flex items-center justify-center shadow-md"
+                  className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm"
                 >
-                  <Icon size={22} />
+                  <Icon size={14} />
                 </div>
-                <span className="text-white/70 group-hover:text-white text-[11px] font-semibold text-center leading-tight transition-colors">
+                <span className="text-white/75 group-hover:text-white text-xs font-semibold transition-colors whitespace-nowrap">
                   {link.label}
                 </span>
               </a>
