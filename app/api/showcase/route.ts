@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: '승인된 사용자만 이용할 수 있습니다.' }, { status: 403 })
   }
 
-  const { blog_name, blog_url, description } = await request.json()
+  const { blog_name, blog_url, description, action_buttons } = await request.json()
   if (!blog_name?.trim() || !blog_url?.trim()) {
     return NextResponse.json({ error: '블로그 이름과 URL을 입력해주세요.' }, { status: 400 })
   }
@@ -44,6 +44,7 @@ export async function POST(request: NextRequest) {
       blog_name: blog_name.trim(),
       blog_url: blog_url.trim(),
       description: description?.trim() || null,
+      action_buttons: Array.isArray(action_buttons) ? action_buttons : [],
     }, { onConflict: 'user_id' })
     .select()
     .single()
