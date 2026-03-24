@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Trash2, Plus, ToggleLeft, ToggleRight, GripVertical } from 'lucide-react'
-import { SNS_PLATFORMS } from '@/components/SnsLinks'
+import { SNS_PLATFORMS, FALLBACK_PLATFORM } from '@/components/SnsLinks'
 
 interface SnsLink {
   id: string
@@ -211,7 +211,7 @@ export default function AdminSnsPage() {
       ) : (
         <div className="space-y-2">
           {sorted.map((link, idx) => {
-            const p = SNS_PLATFORMS[link.platform] ?? SNS_PLATFORMS.other
+            const p = SNS_PLATFORMS[link.platform] ?? FALLBACK_PLATFORM
             return (
               <div key={link.id} className={`card p-4 flex items-center gap-3 ${!link.enabled ? 'opacity-60' : ''}`}>
                 {/* 순서 조절 */}
@@ -237,9 +237,9 @@ export default function AdminSnsPage() {
                 {/* 플랫폼 뱃지 */}
                 <div
                   style={{ backgroundColor: p.bg, color: p.fg }}
-                  className="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0"
+                  className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
                 >
-                  {p.symbol}
+                  <p.icon size={18} />
                 </div>
 
                 {/* 정보 */}

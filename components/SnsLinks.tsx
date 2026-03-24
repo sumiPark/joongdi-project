@@ -36,7 +36,7 @@ export const SNS_PLATFORMS: Record<string, PlatformConfig> = {
   discord:   { name: 'Discord',     icon: FaDiscord,   bg: '#5865F2', fg: '#fff' },
 }
 
-const FALLBACK: PlatformConfig = {
+export const FALLBACK_PLATFORM: PlatformConfig = {
   name: '링크',
   icon: FaBlogger,
   bg: '#6B7280',
@@ -63,7 +63,7 @@ export default function SnsLinks({ variant = 'bar' }: SnsLinksProps) {
     return (
       <div className="flex items-center gap-1.5 flex-wrap px-1">
         {links.map((link) => {
-          const p = SNS_PLATFORMS[link.platform] ?? FALLBACK
+          const p = SNS_PLATFORMS[link.platform] ?? FALLBACK_PLATFORM
           const Icon = p.icon
           return (
             <a
@@ -93,7 +93,7 @@ export default function SnsLinks({ variant = 'bar' }: SnsLinksProps) {
       </div>
       <div className="flex items-center justify-center gap-2 flex-wrap">
         {links.map((link) => {
-          const p = SNS_PLATFORMS[link.platform] ?? FALLBACK
+          const p = SNS_PLATFORMS[link.platform] ?? FALLBACK_PLATFORM
           const Icon = p.icon
           return (
             <a
