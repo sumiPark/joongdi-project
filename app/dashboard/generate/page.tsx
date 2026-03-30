@@ -167,7 +167,7 @@ export default function GeneratePage() {
           {/* 글 목적 */}
           <div className="card p-5">
             <label className="block text-sm font-semibold text-gray-700 mb-3">글 목적</label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {PURPOSES.map((p) => (
                 <label key={p.value} className={`flex items-center gap-2 p-3 rounded-lg border-2 cursor-pointer transition-all ${purpose === p.value ? 'border-brand-500 bg-brand-50' : 'border-gray-200 hover:border-gray-300'}`}>
                   <input type="radio" value={p.value} checked={purpose === p.value} onChange={(e) => setPurpose(e.target.value)} className="sr-only" />
@@ -202,7 +202,7 @@ export default function GeneratePage() {
           {/* 타겟 독자 */}
           <div className="card p-5">
             <label className="block text-sm font-semibold text-gray-700 mb-3">타겟 독자</label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {TARGET_AUDIENCES.map((a) => (
                 <label key={a.value} className={`flex items-center gap-2 p-3 rounded-lg border-2 cursor-pointer transition-all ${targetAudience === a.value ? 'border-brand-500 bg-brand-50' : 'border-gray-200 hover:border-gray-300'}`}>
                   <input type="radio" value={a.value} checked={targetAudience === a.value} onChange={() => setTargetAudience(a.value)} className="sr-only" />

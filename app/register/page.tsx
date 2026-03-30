@@ -43,6 +43,8 @@ export default function RegisterPage() {
       if (error) {
         if (error.message.includes('already registered')) {
           toast.error('이미 등록된 이메일입니다.')
+        } else if (error.message.toLowerCase().includes('rate limit') || error.message.toLowerCase().includes('email rate')) {
+          toast.error('잠시 후 다시 시도해 주세요. (이메일 발송 한도 초과)')
         } else {
           toast.error(error.message)
         }

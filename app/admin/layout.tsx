@@ -31,8 +31,8 @@ export default async function AdminLayout({
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <Sidebar isAdmin={true} userName={profile.name || user.email} userId={user.id} featureSettings={featureSettings} />
-      <main className="flex-1 ml-64">
-        <div className="p-8">
+      <main className="flex-1 lg:ml-64">
+        <div className="p-4 pt-16 lg:p-8 lg:pt-8">
           {children}
         </div>
       </main>
