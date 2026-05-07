@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { formatDate } from '@/lib/utils'
-import { CheckCircle, XCircle, Clock, Shield, Search } from 'lucide-react'
+import { CheckCircle, XCircle, Clock, Shield, Search, Download, CheckCheck } from 'lucide-react'
 import toast from 'react-hot-toast'
+import * as XLSX from 'xlsx'
 
 interface Profile {
   id: string
@@ -22,10 +23,48 @@ export default function AdminUsersPage() {
   const [filter, setFilter] = useState<FilterType>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [processingId, setProcessingId] = useState<string | null>(null)
+  const [bulkApproving, setBulkApproving] = useState(false)
 
   useEffect(() => {
     loadProfiles()
   }, [])
+
+  function downloadExcel() {
+    const statusLabel: Record<string, string> = { pending: '대기', approved: '승인', rejected: '거절' }
+    const rows = profiles.map(p => ({
+      이름: p.name || '(이름 없음)',
+      이메일: p.email,
+      상태: statusLabel[p.status],
+      가입일: formatDate(p.created_at),
+    }))
+    const ws = XLSX.utils.json_to_sheet(rows)
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, '회원목록')
+    XLSX.writeFile(wb, `회원목록_${new Date().toISOString().slice(0, 10)}.xlsx`)
+  }
+
+  async function bulkApproveAll() {
+    const pendingCount = profiles.filter(p => p.status === 'pending').length
+    if (pendingCount === 0) {
+      toast.error('대기 중인 회원이 없습니다.')
+      return
+    }
+    if (!confirm(`대기 중인 회원 ${pendingCount}명을 모두 승인하시겠습니까?`)) return
+
+    setBulkApproving(true)
+    try {
+      const res = await fetch('/api/admin/approve', { method: 'PUT' })
+      const data = await res.json()
+      if (!res.ok) {
+        toast.error(data.error || '처리 중 오류가 발생했습니다.')
+        return
+      }
+      setProfiles(profiles.map(p => p.status === 'pending' ? { ...p, status: 'approved' } : p))
+      toast.success(`${data.count}명 일괄 승인 완료!`)
+    } finally {
+      setBulkApproving(false)
+    }
+  }
 
   async function loadProfiles() {
     setLoading(true)
@@ -106,9 +145,31 @@ export default function AdminUsersPage() {
 
   return (
     <div className="max-w-5xl">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">회원 관리</h1>
-        <p className="text-gray-500 mt-1">회원 승인/거절 및 권한 관리</p>
+      <div className="mb-8 flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">회원 관리</h1>
+          <p className="text-gray-500 mt-1">회원 승인/거절 및 권한 관리</p>
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <button
+            onClick={bulkApproveAll}
+            disabled={bulkApproving || counts.pending === 0}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <CheckCheck size={15} />
+            대기 일괄 승인
+            {counts.pending > 0 && (
+              <span className="bg-white/25 text-xs px-1.5 py-0.5 rounded-full">{counts.pending}</span>
+            )}
+          </button>
+          <button
+            onClick={downloadExcel}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+          >
+            <Download size={15} />
+            엑셀 다운로드
+          </button>
+        </div>
       </div>
 
       {/* 필터 탭 */}

@@ -54,6 +54,63 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// 대기 유저 일괄 승인
+export async function PUT() {
+  try {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
+    }
+
+    const adminSupabase = createAdminClient()
+
+    const { data: adminProfile } = await adminSupabase
+      .from('profiles')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single()
+
+    if (!adminProfile?.is_admin) {
+      return NextResponse.json({ error: '관리자 권한이 필요합니다.' }, { status: 403 })
+    }
+
+    const { data: pendingUsers, error: fetchError } = await adminSupabase
+      .from('profiles')
+      .select('id')
+      .eq('status', 'pending')
+
+    if (fetchError) {
+      return NextResponse.json({ error: fetchError.message }, { status: 500 })
+    }
+
+    if (!pendingUsers || pendingUsers.length === 0) {
+      return NextResponse.json({ success: true, count: 0 })
+    }
+
+    const userIds = pendingUsers.map(u => u.id)
+
+    const { error } = await adminSupabase
+      .from('profiles')
+      .update({ status: 'approved', updated_at: new Date().toISOString() })
+      .in('id', userIds)
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    await Promise.all(
+      userIds.map(id => adminSupabase.auth.admin.updateUserById(id, { email_confirm: true }))
+    )
+
+    return NextResponse.json({ success: true, count: userIds.length })
+  } catch (error) {
+    console.error('[admin/approve PUT] Error:', error)
+    return NextResponse.json({ error: '처리 중 오류가 발생했습니다.' }, { status: 500 })
+  }
+}
+
 // 관리자 권한 토글
 export async function PATCH(request: NextRequest) {
   try {
